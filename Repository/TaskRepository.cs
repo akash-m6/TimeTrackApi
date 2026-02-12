@@ -73,4 +73,12 @@ public class TaskRepository : GenericRepository<TaskEntity>, ITaskRepository
                      && t.CompletedDate <= endDate)
             .CountAsync();
     }
+
+    public async Task<int> GetActiveTasksCountForUsersAsync(IEnumerable<int> userIds)
+    {
+        if (userIds == null || !userIds.Any()) return 0;
+        return await _dbSet
+            .Where(t => userIds.Contains(t.AssignedToUserId) && t.Status == "Active")
+            .CountAsync();
+    }
 }

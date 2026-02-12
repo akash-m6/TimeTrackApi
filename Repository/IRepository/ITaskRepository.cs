@@ -10,4 +10,5 @@ public interface ITaskRepository : IGenericRepository<TaskEntity>
     Task<IEnumerable<TaskEntity>> GetOverdueTasksAsync();
     Task<IEnumerable<TaskEntity>> GetTasksByDepartmentAsync(string department);
     Task<int> GetCompletedTasksCountAsync(int userId, DateTime startDate, DateTime endDate);
+    Task<int> GetActiveTasksCountForUsersAsync(IEnumerable<int> userIds);
 }

@@ -63,4 +63,12 @@ public class TimeLogRepository : GenericRepository<TimeLogEntity>, ITimeLogRepos
     {
         return await _dbSet.FirstOrDefaultAsync(t => t.UserId == userId && t.Date.Date == date.Date);
     }
+
+    public async Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<int> userIds, DateTime date)
+    {
+        if (userIds == null || !userIds.Any()) return 0m;
+        return await _dbSet
+            .Where(t => userIds.Contains(t.UserId) && t.Date.Date == date.Date)
+            .SumAsync(t => t.TotalHours);
+    }
 }

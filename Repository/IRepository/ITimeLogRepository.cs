@@ -10,4 +10,5 @@ public interface ITimeLogRepository : IGenericRepository<TimeLogEntity>
     Task<decimal> GetTotalHoursByUserAsync(int userId, DateTime startDate, DateTime endDate);
     Task<IEnumerable<TimeLogEntity>> GetPendingApprovalLogsAsync(int managerId);
     Task<TimeLogEntity> GetLogByUserAndDateAsync(int userId, DateTime date);
+    Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<int> userIds, DateTime date);
 }

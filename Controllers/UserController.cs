@@ -91,6 +91,46 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
+    /// Manager dashboard stats
+    /// </summary>
+    [Authorize(Policy = "ManagerOrAdmin")]
+    [HttpGet("manager-dashboard/{managerId}")]
+    public async Task<IActionResult> GetManagerDashboard(int managerId)
+    {
+        // 1) Fetch team count using async count
+        var teamCount = await _unitOfWork.Users.GetEmployeesCountByManagerIdAsync(managerId);
+
+        // 2) Fetch team members list (sequential)
+        var teamMembers = await _unitOfWork.Users.GetEmployeesByManagerIdAsync(managerId);
+        var teamMemberIds = teamMembers.Select(u => u.UserId).ToList();
+
+        // 3) Fetch total team hours for today using repository async Sum (sequential)
+        // Use DateTime.Today.Date to match only the date portion
+        var today = DateTime.Today.Date;
+        decimal teamHoursToday = 0m;
+        if (teamMemberIds.Any())
+        {
+            teamHoursToday = await _unitOfWork.TimeLogs.GetTotalHoursByUsersForDateAsync(teamMemberIds, today);
+        }
+
+        // 4) Fetch active tasks count for the team using repository async Count (sequential)
+        var activeTasks = 0;
+        if (teamMemberIds.Any())
+        {
+            activeTasks = await _unitOfWork.Tasks.GetActiveTasksCountForUsersAsync(teamMemberIds);
+        }
+
+        var payload = new
+        {
+            teamCount = teamCount,
+            teamHoursToday = teamHoursToday,
+            activeTasks = activeTasks
+        };
+
+        return Ok(new { success = true, data = payload });
+    }
+
+    /// <summary>
     /// Deactivates a user account (admins only)
     /// </summary>
     [Authorize(Policy = "AdminOnly")]

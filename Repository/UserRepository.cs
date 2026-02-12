@@ -35,4 +35,11 @@ public class UserRepository : GenericRepository<UserEntity>, IUserRepository
     {
         return await _dbSet.AnyAsync(u => u.Email == email);
     }
+
+    public async Task<int> GetEmployeesCountByManagerIdAsync(int managerId)
+    {
+        return await _dbSet.CountAsync(u => u.ManagerId == managerId);
+    }
 }
+
+// Manager-Employee Self-Referencing Relationship

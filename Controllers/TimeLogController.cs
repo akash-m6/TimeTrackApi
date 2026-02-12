@@ -78,4 +78,16 @@ public class TimeLogController : ControllerBase
         var result = await _timeLoggingService.CalculateTotalHoursAsync(userId, startDate, endDate);
         return Ok(ApiResponseDto<decimal>.SuccessResponse(result));
     }
+
+    [Authorize(Policy = "ManagerOrAdmin")]
+    [HttpGet("team/{managerId}")]
+    public async Task<ActionResult<ApiResponseDto<IEnumerable<DTOs.TimeLog.TeamTimeLogDto>>>> GetTeamTimeLogs(int managerId)
+    {
+        var logs = await _timeLoggingService.GetTeamTimeLogsByManagerIdAsync(managerId);
+
+        if (logs == null || !logs.Any())
+            return NotFound(ApiResponseDto<IEnumerable<DTOs.TimeLog.TeamTimeLogDto>>.ErrorResponse("No team members or time logs found for the given manager."));
+
+        return Ok(ApiResponseDto<IEnumerable<DTOs.TimeLog.TeamTimeLogDto>>.SuccessResponse(logs));
+    }
 }

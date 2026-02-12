@@ -12,6 +12,8 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository Users { get; }
     public ITimeLogRepository TimeLogs { get; }
     public ITaskRepository Tasks { get; }
+    // expose context when needed for certain queries
+    public TimeTrack.API.Data.TimeTrackDbContext Context => _context;
     public ITaskTimeRepository TaskTimes { get; }
     public INotificationRepository Notifications { get; }
     public IPendingRegistrationRepository PendingRegistrations { get; }

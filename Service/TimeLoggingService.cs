@@ -168,6 +168,41 @@ public class TimeLoggingService : ITimeLoggingService
         return await _unitOfWork.TimeLogs.GetTotalHoursByUserAsync(userId, startDate, endDate);
     }
 
+    public async Task<IEnumerable<DTOs.TimeLog.TeamTimeLogDto>> GetTeamTimeLogsByManagerIdAsync(int managerId)
+    {
+        var employees = await _unitOfWork.Users.GetEmployeesByManagerIdAsync(managerId);
+
+        if (employees == null || !employees.Any())
+            return Enumerable.Empty<DTOs.TimeLog.TeamTimeLogDto>();
+
+        var result = new List<DTOs.TimeLog.TeamTimeLogDto>();
+
+        foreach (var emp in employees)
+        {
+            var logs = await _unitOfWork.TimeLogs.GetLogsByUserIdAsync(emp.UserId);
+
+            foreach (var log in logs)
+            {
+                result.Add(new DTOs.TimeLog.TeamTimeLogDto
+                {
+                    EmployeeName = emp.Name,
+                    Date = log.Date,
+                    StartTime = log.StartTime,
+                    EndTime = log.EndTime,
+                    BreakDuration = log.BreakDuration,
+                    TotalHours = log.TotalHours
+                });
+            }
+        }
+
+        return result;
+    }
+
+    public async Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<int> userIds, DateTime date)
+    {
+        return await _unitOfWork.TimeLogs.GetTotalHoursByUsersForDateAsync(userIds, date);
+    }
+
     private decimal CalculateTotalHours(TimeSpan startTime, TimeSpan endTime, TimeSpan breakDuration)
     {
         var totalTime = endTime - startTime;
