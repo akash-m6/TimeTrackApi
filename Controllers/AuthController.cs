@@ -20,6 +20,7 @@ public class AuthController : ControllerBase
         _registrationService = registrationService;
     }
 
+
     /// <summary>
     /// User login endpoint
     /// </summary>

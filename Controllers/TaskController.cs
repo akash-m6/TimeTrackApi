@@ -90,15 +90,61 @@ public class TaskController : ControllerBase
     }
 
     /// <summary>
-    /// Updates task status (Pending → InProgress → Completed)
+    /// START a task - Changes status from Pending to InProgress
     /// </summary>
-    [HttpPatch("{taskId}/status")]
-    public async Task<ActionResult<ApiResponseDto<bool>>> UpdateTaskStatus(
-        int taskId, 
-        [FromBody] UpdateTaskStatusRequest request)
+    [HttpPatch("{taskId}/start")]
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> StartTask(int taskId)
     {
-        var result = await _taskService.UpdateTaskStatusAsync(taskId, request.Status);
-        return Ok(ApiResponseDto<bool>.SuccessResponse(result, $"Task status updated to {request.Status}"));
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _taskService.StartTaskAsync(taskId, userId);
+        return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task started successfully"));
+    }
+
+    /// <summary>
+    /// COMPLETE a task - Changes status from InProgress to Completed (pending approval)
+    /// </summary>
+    [HttpPatch("{taskId}/complete")]
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> CompleteTask(int taskId)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _taskService.CompleteTaskAsync(taskId, userId);
+        return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task completed. Awaiting manager approval."));
+    }
+
+    /// <summary>
+    /// APPROVE a completed task (Manager/Admin only)
+    /// </summary>
+    [Authorize(Policy = "ManagerOrAdmin")]
+    [HttpPatch("{taskId}/approve")]
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> ApproveTask(int taskId)
+    {
+        var managerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _taskService.ApproveTaskAsync(taskId, managerId);
+        return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task approved successfully"));
+    }
+
+    /// <summary>
+    /// REJECT a completed task and send back to InProgress (Manager/Admin only)
+    /// </summary>
+    [Authorize(Policy = "ManagerOrAdmin")]
+    [HttpPatch("{taskId}/reject")]
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> RejectTask(int taskId, [FromBody] RejectTaskRequest request)
+    {
+        var managerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _taskService.RejectTaskAsync(taskId, managerId, request.Reason);
+        return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task rejected and sent back to employee"));
+    }
+
+    /// <summary>
+    /// Gets tasks pending approval (Manager/Admin only)
+    /// </summary>
+    [Authorize(Policy = "ManagerOrAdmin")]
+    [HttpGet("pending-approval")]
+    public async Task<ActionResult<ApiResponseDto<IEnumerable<TaskResponseDto>>>> GetTasksPendingApproval()
+    {
+        var managerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _taskService.GetTasksPendingApprovalAsync(managerId);
+        return Ok(ApiResponseDto<IEnumerable<TaskResponseDto>>.SuccessResponse(result));
     }
 
     /// <summary>
@@ -125,3 +171,4 @@ public class TaskController : ControllerBase
 }
 
 public record UpdateTaskStatusRequest(string Status);
+public record RejectTaskRequest(string Reason);

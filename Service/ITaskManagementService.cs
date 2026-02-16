@@ -13,4 +13,11 @@ public interface ITaskManagementService
     Task<bool> UpdateTaskStatusAsync(int taskId, string status);
     Task<bool> LogTaskTimeAsync(int userId, LogTaskTimeDto dto);
     Task<IEnumerable<TaskResponseDto>> GetOverdueTasksAsync();
+
+    // NEW: Task workflow methods
+    Task<TaskResponseDto> StartTaskAsync(int taskId, int userId);
+    Task<TaskResponseDto> CompleteTaskAsync(int taskId, int userId);
+    Task<TaskResponseDto> ApproveTaskAsync(int taskId, int managerId);
+    Task<TaskResponseDto> RejectTaskAsync(int taskId, int managerId, string reason);
+    Task<IEnumerable<TaskResponseDto>> GetTasksPendingApprovalAsync(int managerId);
 }
