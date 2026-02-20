@@ -4,13 +4,15 @@ namespace TimeTrack.API.Service;
 
 public interface INotificationService
 {
-    System.Threading.Tasks.Task CreateNotificationAsync(int userId, string type, string message);
-    System.Threading.Tasks.Task<IEnumerable<NotificationEntity>> GetUserNotificationsAsync(int userId);
-    System.Threading.Tasks.Task<IEnumerable<NotificationEntity>> GetUnreadNotificationsAsync(int userId);
-    System.Threading.Tasks.Task<int> GetUnreadCountAsync(int userId);
-    System.Threading.Tasks.Task MarkAsReadAsync(int notificationId);
-    System.Threading.Tasks.Task MarkAllAsReadAsync(int userId);
-    System.Threading.Tasks.Task SendTaskAssignmentNotificationAsync(int userId, string taskTitle);
-    System.Threading.Tasks.Task SendLogReminderNotificationAsync(int userId);
-    System.Threading.Tasks.Task SendTaskDeadlineNotificationAsync(int userId, string taskTitle, DateTime dueDate);
+    System.Threading.Tasks.Task CreateNotificationAsync(Guid userId, string type, string message);
+    
+    // ✅ Changed NotificationEntity to Notification
+    System.Threading.Tasks.Task<IEnumerable<Notification>> GetUserNotificationsAsync(Guid userId);
+    System.Threading.Tasks.Task<IEnumerable<Notification>> GetUnreadNotificationsAsync(Guid userId);
+    System.Threading.Tasks.Task<int> GetUnreadCountAsync(Guid userId);
+    System.Threading.Tasks.Task MarkAsReadAsync(Guid notificationId);
+    System.Threading.Tasks.Task MarkAllAsReadAsync(Guid userId);
+    System.Threading.Tasks.Task SendTaskAssignmentNotificationAsync(Guid userId, string taskTitle);
+    System.Threading.Tasks.Task SendLogReminderNotificationAsync(Guid userId);
+    System.Threading.Tasks.Task SendTaskDeadlineNotificationAsync(Guid userId, string taskTitle, DateTime dueDate);
 }

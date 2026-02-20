@@ -11,7 +11,7 @@ public class TaskRepository : GenericRepository<TaskEntity>, ITaskRepository
     {
     }
 
-    public override async Task<TaskEntity> GetByIdAsync(int id)
+    public override async Task<TaskEntity?> GetByIdAsync(Guid id)
     {
         return await _dbSet
             .Include(t => t.AssignedToUser)
@@ -20,7 +20,7 @@ public class TaskRepository : GenericRepository<TaskEntity>, ITaskRepository
             .FirstOrDefaultAsync(t => t.TaskId == id);
     }
 
-    public async Task<IEnumerable<TaskEntity>> GetTasksByAssignedUserAsync(int userId)
+    public async Task<IEnumerable<TaskEntity>> GetTasksByAssignedUserAsync(Guid userId)
     {
         return await _dbSet
             .Include(t => t.AssignedToUser)
@@ -33,7 +33,7 @@ public class TaskRepository : GenericRepository<TaskEntity>, ITaskRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<TaskEntity>> GetTasksByCreatorAsync(int creatorId)
+    public async Task<IEnumerable<TaskEntity>> GetTasksByCreatorAsync(Guid creatorId)
     {
         return await _dbSet
             .Include(t => t.AssignedToUser)
@@ -75,7 +75,7 @@ public class TaskRepository : GenericRepository<TaskEntity>, ITaskRepository
             .ToListAsync();
     }
 
-    public async Task<int> GetCompletedTasksCountAsync(int userId, DateTime startDate, DateTime endDate)
+    public async Task<int> GetCompletedTasksCountAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         return await _dbSet
             .Where(t => t.AssignedToUserId == userId 
@@ -86,7 +86,7 @@ public class TaskRepository : GenericRepository<TaskEntity>, ITaskRepository
             .CountAsync();
     }
 
-    public async Task<int> GetActiveTasksCountForUsersAsync(IEnumerable<int> userIds)
+    public async Task<int> GetActiveTasksCountForUsersAsync(IEnumerable<Guid> userIds)
     {
         if (userIds == null || !userIds.Any()) return 0;
         return await _dbSet

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TimeTrack.API.DTOs.Common;
+using TimeTrack.API.DTOs.Notification;
 using TimeTrack.API.Models;
 using TimeTrack.API.Service;
 
@@ -20,25 +21,35 @@ public class NotificationController : ControllerBase
     }
 
     /// <summary>
+    /// Creates a notification
+    /// </summary>
+    [HttpPost]
+    public async Task<ActionResult<ApiResponseDto<bool>>> CreateNotification([FromBody] CreateNotificationDto dto)
+    {
+        await _notificationService.CreateNotificationAsync(dto.UserId, dto.Type, dto.Message);
+        return Ok(ApiResponseDto<bool>.SuccessResponse(true, "Notification created successfully"));
+    }
+
+    /// <summary>
     /// Gets all notifications for the current user
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<ApiResponseDto<IEnumerable<NotificationEntity>>>> GetMyNotifications()
+    public async Task<ActionResult<ApiResponseDto<IEnumerable<Notification>>>> GetMyNotifications()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var notifications = await _notificationService.GetUserNotificationsAsync(userId);
-        return Ok(ApiResponseDto<IEnumerable<NotificationEntity>>.SuccessResponse(notifications));
+        return Ok(ApiResponseDto<IEnumerable<Notification>>.SuccessResponse(notifications));
     }
 
     /// <summary>
     /// Gets only unread notifications for the current user
     /// </summary>
     [HttpGet("unread")]
-    public async Task<ActionResult<ApiResponseDto<IEnumerable<NotificationEntity>>>> GetUnreadNotifications()
+    public async Task<ActionResult<ApiResponseDto<IEnumerable<Notification>>>> GetUnreadNotifications()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var notifications = await _notificationService.GetUnreadNotificationsAsync(userId);
-        return Ok(ApiResponseDto<IEnumerable<NotificationEntity>>.SuccessResponse(notifications));
+        return Ok(ApiResponseDto<IEnumerable<Notification>>.SuccessResponse(notifications));
     }
 
     /// <summary>
@@ -47,7 +58,7 @@ public class NotificationController : ControllerBase
     [HttpGet("unread/count")]
     public async Task<ActionResult<ApiResponseDto<int>>> GetUnreadCount()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var count = await _notificationService.GetUnreadCountAsync(userId);
         return Ok(ApiResponseDto<int>.SuccessResponse(count));
     }
@@ -55,8 +66,8 @@ public class NotificationController : ControllerBase
     /// <summary>
     /// Marks a specific notification as read
     /// </summary>
-    [HttpPatch("{notificationId}/read")]
-    public async Task<ActionResult<ApiResponseDto<bool>>> MarkAsRead(int notificationId)
+    [HttpPatch("{notificationId:guid}/read")]
+    public async Task<ActionResult<ApiResponseDto<bool>>> MarkAsRead(Guid notificationId)
     {
         await _notificationService.MarkAsReadAsync(notificationId);
         return Ok(ApiResponseDto<bool>.SuccessResponse(true, "Notification marked as read"));
@@ -68,7 +79,7 @@ public class NotificationController : ControllerBase
     [HttpPatch("read-all")]
     public async Task<ActionResult<ApiResponseDto<bool>>> MarkAllAsRead()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         await _notificationService.MarkAllAsReadAsync(userId);
         return Ok(ApiResponseDto<bool>.SuccessResponse(true, "All notifications marked as read"));
     }

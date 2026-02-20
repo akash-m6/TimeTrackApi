@@ -5,13 +5,13 @@ using TimeTrack.API.Repository.IRepository;
 
 namespace TimeTrack.API.Repository;
 
-public class TimeLogRepository : GenericRepository<TimeLogEntity>, ITimeLogRepository
+public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
 {
     public TimeLogRepository(TimeTrackDbContext context) : base(context)
     {
     }
 
-    public async Task<IEnumerable<TimeLogEntity>> GetLogsByUserIdAsync(int userId)
+    public async Task<IEnumerable<TimeLog>> GetLogsByUserIdAsync(Guid userId)
     {
         return await _dbSet
             .Include(t => t.User)
@@ -20,7 +20,7 @@ public class TimeLogRepository : GenericRepository<TimeLogEntity>, ITimeLogRepos
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<TimeLogEntity>> GetLogsByDateRangeAsync(int userId, DateTime startDate, DateTime endDate)
+    public async Task<IEnumerable<TimeLog>> GetLogsByDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         return await _dbSet
             .Include(t => t.User)
@@ -29,7 +29,7 @@ public class TimeLogRepository : GenericRepository<TimeLogEntity>, ITimeLogRepos
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<TimeLogEntity>> GetLogsByDepartmentAsync(string department, DateTime startDate, DateTime endDate)
+    public async Task<IEnumerable<TimeLog>> GetLogsByDepartmentAsync(string department, DateTime startDate, DateTime endDate)
     {
         return await _dbSet
             .Include(t => t.User)
@@ -38,14 +38,14 @@ public class TimeLogRepository : GenericRepository<TimeLogEntity>, ITimeLogRepos
             .ToListAsync();
     }
 
-    public async Task<decimal> GetTotalHoursByUserAsync(int userId, DateTime startDate, DateTime endDate)
+    public async Task<decimal> GetTotalHoursByUserAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         return await _dbSet
             .Where(t => t.UserId == userId && t.Date >= startDate && t.Date <= endDate)
             .SumAsync(t => t.TotalHours);
     }
 
-    public async Task<IEnumerable<TimeLogEntity>> GetPendingApprovalLogsAsync(int managerId)
+    public async Task<IEnumerable<TimeLog>> GetPendingApprovalLogsAsync(Guid managerId)
     {
         var managerDepartment = await _context.Users
             .Where(u => u.UserId == managerId)
@@ -59,12 +59,12 @@ public class TimeLogRepository : GenericRepository<TimeLogEntity>, ITimeLogRepos
             .ToListAsync();
     }
 
-    public async Task<TimeLogEntity> GetLogByUserAndDateAsync(int userId, DateTime date)
+    public async Task<TimeLog?> GetLogByUserAndDateAsync(Guid userId, DateTime date)
     {
         return await _dbSet.FirstOrDefaultAsync(t => t.UserId == userId && t.Date.Date == date.Date);
     }
 
-    public async Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<int> userIds, DateTime date)
+    public async Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<Guid> userIds, DateTime date)
     {
         if (userIds == null || !userIds.Any()) return 0m;
         return await _dbSet

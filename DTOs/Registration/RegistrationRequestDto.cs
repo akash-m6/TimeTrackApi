@@ -1,12 +1,10 @@
-namespace TimeTrack.API.DTOs.Auth;
+﻿namespace TimeTrack.API.DTOs.Registration;
 
-public class LoginResponseDto
+public class RegistrationRequestDto
 {
-    public Guid UserId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
-    public string Token { get; set; } = string.Empty;
-    public DateTime TokenExpiration { get; set; }
 }

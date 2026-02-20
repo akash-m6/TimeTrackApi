@@ -23,22 +23,11 @@ public class RegistrationController : ControllerBase
     /// </summary>
     [HttpPost]
     [AllowAnonymous]
-    public async Task<ActionResult<ApiResponseDto<RegistrationResponseDto>>> Register(
-        [FromBody] RegistrationRequestDto request)
+    public async Task<ActionResult<ApiResponseDto<PendingRegistrationDto>>> Register(
+        [FromBody] RegistrationApplicationDto request)
     {
-        try
-        {
-            var result = await _registrationService.SubmitRegistrationAsync(request);
-            return Ok(ApiResponseDto<RegistrationResponseDto>.SuccessResponse(result, result.Message));
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ApiResponseDto<RegistrationResponseDto>.ErrorResponse(ex.Message));
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ApiResponseDto<RegistrationResponseDto>.ErrorResponse(ex.Message));
-        }
+        var result = await _registrationService.ApplyForRegistrationAsync(request);
+        return Ok(ApiResponseDto<PendingRegistrationDto>.SuccessResponse(MapToDto(result), "Registration submitted successfully"));
     }
 
     /// <summary>
@@ -49,8 +38,8 @@ public class RegistrationController : ControllerBase
     public async Task<ActionResult<ApiResponseDto<IEnumerable<PendingRegistrationDto>>>> GetAll()
     {
         var registrations = await _registrationService.GetAllRegistrationsAsync();
-        return Ok(ApiResponseDto<IEnumerable<PendingRegistrationDto>>.SuccessResponse(
-            registrations, "All registrations retrieved"));
+        var dtos = registrations.Select(MapToDto).ToList();
+        return Ok(ApiResponseDto<IEnumerable<PendingRegistrationDto>>.SuccessResponse(dtos, "All registrations retrieved"));
     }
 
     /// <summary>
@@ -61,8 +50,8 @@ public class RegistrationController : ControllerBase
     public async Task<ActionResult<ApiResponseDto<IEnumerable<PendingRegistrationDto>>>> GetPending()
     {
         var registrations = await _registrationService.GetPendingRegistrationsAsync();
-        return Ok(ApiResponseDto<IEnumerable<PendingRegistrationDto>>.SuccessResponse(
-            registrations, "Pending registrations retrieved"));
+        var dtos = registrations.Select(MapToDto).ToList();
+        return Ok(ApiResponseDto<IEnumerable<PendingRegistrationDto>>.SuccessResponse(dtos, "Pending registrations retrieved"));
     }
 
     /// <summary>
@@ -73,8 +62,8 @@ public class RegistrationController : ControllerBase
     public async Task<ActionResult<ApiResponseDto<IEnumerable<PendingRegistrationDto>>>> GetApproved()
     {
         var registrations = await _registrationService.GetApprovedRegistrationsAsync();
-        return Ok(ApiResponseDto<IEnumerable<PendingRegistrationDto>>.SuccessResponse(
-            registrations, "Approved registrations retrieved"));
+        var dtos = registrations.Select(MapToDto).ToList();
+        return Ok(ApiResponseDto<IEnumerable<PendingRegistrationDto>>.SuccessResponse(dtos, "Approved registrations retrieved"));
     }
 
     /// <summary>
@@ -85,8 +74,8 @@ public class RegistrationController : ControllerBase
     public async Task<ActionResult<ApiResponseDto<IEnumerable<PendingRegistrationDto>>>> GetRejected()
     {
         var registrations = await _registrationService.GetRejectedRegistrationsAsync();
-        return Ok(ApiResponseDto<IEnumerable<PendingRegistrationDto>>.SuccessResponse(
-            registrations, "Rejected registrations retrieved"));
+        var dtos = registrations.Select(MapToDto).ToList();
+        return Ok(ApiResponseDto<IEnumerable<PendingRegistrationDto>>.SuccessResponse(dtos, "Rejected registrations retrieved"));
     }
 
     /// <summary>
@@ -105,22 +94,11 @@ public class RegistrationController : ControllerBase
     /// </summary>
     [HttpPost("{id}/approve")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ApiResponseDto<RegistrationResponseDto>>> Approve(int id)
+    public async Task<ActionResult<ApiResponseDto<bool>>> Approve(Guid id)
     {
-        try
-        {
-            var adminUserId = GetCurrentUserId();
-            var result = await _registrationService.ApproveRegistrationAsync(id, adminUserId);
-            return Ok(ApiResponseDto<RegistrationResponseDto>.SuccessResponse(result, result.Message));
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ApiResponseDto<RegistrationResponseDto>.ErrorResponse(ex.Message));
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ApiResponseDto<RegistrationResponseDto>.ErrorResponse(ex.Message));
-        }
+        var adminUserId = GetCurrentUserId();
+        var result = await _registrationService.ApproveRegistrationAsync(id, adminUserId);
+        return Ok(ApiResponseDto<bool>.SuccessResponse(result, "Registration approved successfully"));
     }
 
     /// <summary>
@@ -128,23 +106,12 @@ public class RegistrationController : ControllerBase
     /// </summary>
     [HttpPost("{id}/reject")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ApiResponseDto<RegistrationResponseDto>>> Reject(
-        int id, [FromBody] RejectRegistrationDto request)
+    public async Task<ActionResult<ApiResponseDto<bool>>> Reject(
+        Guid id, [FromBody] RejectRegistrationDto request)
     {
-        try
-        {
-            var adminUserId = GetCurrentUserId();
-            var result = await _registrationService.RejectRegistrationAsync(id, adminUserId, request.Reason);
-            return Ok(ApiResponseDto<RegistrationResponseDto>.SuccessResponse(result, result.Message));
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ApiResponseDto<RegistrationResponseDto>.ErrorResponse(ex.Message));
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ApiResponseDto<RegistrationResponseDto>.ErrorResponse(ex.Message));
-        }
+        var adminUserId = GetCurrentUserId();
+        var result = await _registrationService.RejectRegistrationAsync(id, adminUserId, request.Reason);
+        return Ok(ApiResponseDto<bool>.SuccessResponse(result, "Registration rejected successfully"));
     }
 
     /// <summary>
@@ -152,23 +119,32 @@ public class RegistrationController : ControllerBase
     /// </summary>
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ApiResponseDto<string>>> Delete(int id)
+    public async Task<ActionResult<ApiResponseDto<string>>> Delete(Guid id)
     {
-        try
-        {
-            await _registrationService.DeleteRegistrationAsync(id);
-            return Ok(ApiResponseDto<string>.SuccessResponse("Deleted", "Registration deleted successfully"));
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ApiResponseDto<string>.ErrorResponse(ex.Message));
-        }
+        await _registrationService.DeleteRegistrationAsync(id);
+        return Ok(ApiResponseDto<string>.SuccessResponse("Deleted", "Registration deleted successfully"));
     }
 
-    private int GetCurrentUserId()
+    private Guid GetCurrentUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
                           ?? User.FindFirst("userId")?.Value;
-        return int.TryParse(userIdClaim, out var userId) ? userId : 0;
+        return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+    }
+
+    private static PendingRegistrationDto MapToDto(Models.PendingRegistration registration)
+    {
+        return new PendingRegistrationDto
+        {
+            RegistrationId = registration.RegistrationId,
+            Name = registration.Name,
+            Email = registration.Email,
+            Role = registration.Role,
+            Department = registration.Department,
+            Status = registration.Status,
+            AppliedDate = registration.AppliedDate,
+            ProcessedDate = registration.ProcessedDate,
+            RejectionReason = registration.RejectionReason
+        };
     }
 }

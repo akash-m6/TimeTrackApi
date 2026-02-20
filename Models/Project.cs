@@ -1,13 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TaskModel = TimeTrack.API.Models.TaskEntity;
 
 namespace TimeTrack.API.Models;
 
 [Table("Projects")]
-public class ProjectEntity
+public class Project
 {
     [Key]
-    public int ProjectId { get; set; }
+    public Guid ProjectId { get; set; } // Changed from int to Guid
 
     [Required]
     [StringLength(200)]
@@ -31,13 +32,19 @@ public class ProjectEntity
     public DateTime? EndDate { get; set; }
 
     [Required]
-    public int ManagerUserId { get; set; }
+    public Guid ManagerUserId { get; set; }
 
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
     // Navigation Properties
     [ForeignKey("ManagerUserId")]
-    public virtual UserEntity Manager { get; set; }
+    public virtual User Manager { get; set; }
 
-    public virtual ICollection<TaskEntity> Tasks { get; set; } = new List<TaskEntity>();
+    public virtual ICollection<TaskModel> Tasks { get; set; } = new List<TaskModel>();
+
+    // Optional: Ensure GUID is generated for new projects
+    public Project()
+    {
+        ProjectId = Guid.NewGuid();
+    }
 }

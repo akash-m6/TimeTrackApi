@@ -1,5 +1,6 @@
 using TimeTrack.API.DTOs.Productivity;
 using TimeTrack.API.Repository.IRepository;
+using TimeTrack.API.Models;
 
 namespace TimeTrack.API.Service;
 
@@ -12,7 +13,7 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<ProductivityReportDto> GenerateUserReportAsync(int userId, DateTime startDate, DateTime endDate)
+    public async Task<ProductivityReportDto> GenerateUserReportAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
         if (user == null)
@@ -33,8 +34,8 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
         var dailyBreakdown = BuildDailyProductivityBreakdown(timeLogs, startDate, endDate);
 
         var avgCompletionTime = completedTasks > 0
-            ? relevantTasks.Where(t => t.Status == "Completed" && t.CompletedDate.HasValue)
-                          .Average(t => (t.CompletedDate.Value - t.CreatedDate).TotalHours)
+            ? relevantTasks.Where(t => t.Status == "Completed" && t.CompletedDate.HasValue && t.CompletedDate.Value != default)
+                          .Average(t => (t.CompletedDate!.Value - t.CreatedDate).TotalHours)
             : 0;
 
         return new ProductivityReportDto
@@ -104,7 +105,7 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
         };
     }
 
-    public async Task<decimal> CalculateEfficiencyScoreAsync(int userId, DateTime startDate, DateTime endDate)
+    public async Task<decimal> CalculateEfficiencyScoreAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         var totalHoursLogged = await _unitOfWork.TimeLogs.GetTotalHoursByUserAsync(userId, startDate, endDate);
         var totalTaskHours = await _unitOfWork.TaskTimes.GetTotalHoursForUserAsync(userId, startDate, endDate);
@@ -127,7 +128,7 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
         return Math.Min(100, Math.Round(efficiencyScore, 2));
     }
 
-    public async Task<decimal> CalculateTaskCompletionRateAsync(int userId, DateTime startDate, DateTime endDate)
+    public async Task<decimal> CalculateTaskCompletionRateAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         var userTasks = await _unitOfWork.Tasks.GetTasksByAssignedUserAsync(userId);
         var relevantTasks = userTasks.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= endDate).ToList();
@@ -142,7 +143,7 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
     }
 
     private List<DailyProductivityDto> BuildDailyProductivityBreakdown(
-        IEnumerable<Models.TimeLogEntity> timeLogs, 
+        IEnumerable<TimeLog> timeLogs, 
         DateTime startDate, 
         DateTime endDate)
     {

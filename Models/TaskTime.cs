@@ -29,7 +29,7 @@ namespace TimeTrack.API.Models
 
         // Navigation Properties
         [ForeignKey(nameof(TaskId))]
-        public Task Task { get; set; } = null!;
+        public TaskEntity Task { get; set; } = null!;
 
         [ForeignKey(nameof(UserId))]
         public User User { get; set; } = null!;

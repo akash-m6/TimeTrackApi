@@ -2,9 +2,10 @@ using TimeTrack.API.Models;
 
 namespace TimeTrack.API.Repository.IRepository;
 
-public interface IPendingRegistrationRepository : IGenericRepository<PendingRegistrationEntity>
+public interface IPendingRegistrationRepository : IGenericRepository<PendingRegistration>
 {
-    Task<PendingRegistrationEntity?> GetByEmailAsync(string email);
-    Task<IEnumerable<PendingRegistrationEntity>> GetByStatusAsync(string status);
+    Task<PendingRegistration?> GetByEmailAsync(string email);
+    Task<IEnumerable<PendingRegistration>> GetByStatusAsync(string status);
+    Task<IEnumerable<PendingRegistration>> GetPendingAsync();
     Task<bool> EmailExistsAsync(string email);
 }

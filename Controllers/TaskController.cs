@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TimeTrack.API.DTOs;
 using TimeTrack.API.DTOs.Common;
 using TimeTrack.API.DTOs.Task;
 using TimeTrack.API.Service;
@@ -26,7 +27,7 @@ public class TaskController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> CreateTask([FromBody] CreateTaskDto dto)
     {
-        var creatorId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var creatorId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _taskService.CreateTaskAsync(creatorId, dto);
         return CreatedAtAction(nameof(GetTaskById), new { taskId = result.TaskId }, 
             ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task created and assigned successfully"));
@@ -37,7 +38,7 @@ public class TaskController : ControllerBase
     /// </summary>
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpPut("{id}")]
-    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> UpdateTask([FromRoute] int id, [FromBody] CreateTaskDto dto)
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> UpdateTask([FromRoute] Guid id, [FromBody] CreateTaskDto dto)
     {
         var result = await _taskService.UpdateTaskAsync(id, dto);
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task updated successfully"));
@@ -48,7 +49,7 @@ public class TaskController : ControllerBase
     /// </summary>
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTask([FromRoute] int id)
+    public async Task<IActionResult> DeleteTask([FromRoute] Guid id)
     {
         var result = await _taskService.DeleteTaskAsync(id);
         if (!result)
@@ -60,7 +61,7 @@ public class TaskController : ControllerBase
     /// Retrieves task details by ID
     /// </summary>
     [HttpGet("{taskId}")]
-    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> GetTaskById(int taskId)
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> GetTaskById(Guid taskId)
     {
         var result = await _taskService.GetTaskByIdAsync(taskId);
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result));
@@ -72,7 +73,7 @@ public class TaskController : ControllerBase
     [HttpGet("my-tasks")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TaskResponseDto>>>> GetMyTasks()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _taskService.GetUserTasksAsync(userId);
         return Ok(ApiResponseDto<IEnumerable<TaskResponseDto>>.SuccessResponse(result));
     }
@@ -84,7 +85,7 @@ public class TaskController : ControllerBase
     [HttpGet("created-by-me")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TaskResponseDto>>>> GetCreatedTasks()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _taskService.GetCreatedTasksAsync(userId);
         return Ok(ApiResponseDto<IEnumerable<TaskResponseDto>>.SuccessResponse(result));
     }
@@ -93,9 +94,9 @@ public class TaskController : ControllerBase
     /// START a task - Changes status from Pending to InProgress
     /// </summary>
     [HttpPatch("{taskId}/start")]
-    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> StartTask(int taskId)
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> StartTask(Guid taskId)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _taskService.StartTaskAsync(taskId, userId);
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task started successfully"));
     }
@@ -104,9 +105,9 @@ public class TaskController : ControllerBase
     /// COMPLETE a task - Changes status from InProgress to Completed (pending approval)
     /// </summary>
     [HttpPatch("{taskId}/complete")]
-    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> CompleteTask(int taskId)
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> CompleteTask(Guid taskId)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _taskService.CompleteTaskAsync(taskId, userId);
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task completed. Awaiting manager approval."));
     }
@@ -116,9 +117,9 @@ public class TaskController : ControllerBase
     /// </summary>
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpPatch("{taskId}/approve")]
-    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> ApproveTask(int taskId)
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> ApproveTask(Guid taskId)
     {
-        var managerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var managerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _taskService.ApproveTaskAsync(taskId, managerId);
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task approved successfully"));
     }
@@ -128,9 +129,9 @@ public class TaskController : ControllerBase
     /// </summary>
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpPatch("{taskId}/reject")]
-    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> RejectTask(int taskId, [FromBody] RejectTaskRequest request)
+    public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> RejectTask(Guid taskId, [FromBody] RejectTaskRequest request)
     {
-        var managerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var managerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _taskService.RejectTaskAsync(taskId, managerId, request.Reason);
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task rejected and sent back to employee"));
     }
@@ -142,7 +143,7 @@ public class TaskController : ControllerBase
     [HttpGet("pending-approval")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TaskResponseDto>>>> GetTasksPendingApproval()
     {
-        var managerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var managerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _taskService.GetTasksPendingApprovalAsync(managerId);
         return Ok(ApiResponseDto<IEnumerable<TaskResponseDto>>.SuccessResponse(result));
     }
@@ -153,7 +154,7 @@ public class TaskController : ControllerBase
     [HttpPost("log-time")]
     public async Task<ActionResult<ApiResponseDto<bool>>> LogTaskTime([FromBody] LogTaskTimeDto dto)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _taskService.LogTaskTimeAsync(userId, dto);
         return Ok(ApiResponseDto<bool>.SuccessResponse(result, "Task time logged successfully"));
     }

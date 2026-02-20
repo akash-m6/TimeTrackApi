@@ -1,13 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TimeTrack.API.Models;
 
 namespace TimeTrack.API.Models;
 
 [Table("PendingRegistrations")]
-public class PendingRegistrationEntity
+public class PendingRegistration
 {
     [Key]
-    public int RegistrationId { get; set; }
+    public Guid RegistrationId { get; set; }
 
     [Required]
     [StringLength(100)]
@@ -38,12 +39,12 @@ public class PendingRegistrationEntity
 
     public DateTime? ProcessedDate { get; set; }
 
-    public int? ProcessedByUserId { get; set; }
+    public Guid? ProcessedByUserId { get; set; }
 
     [StringLength(500)]
     public string? RejectionReason { get; set; }
 
     // Navigation Property for the admin who processed
     [ForeignKey("ProcessedByUserId")]
-    public virtual UserEntity? ProcessedByUser { get; set; }
+    public virtual User? ProcessedByUser { get; set; }
 }

@@ -22,29 +22,29 @@ public class TimeLogController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ApiResponseDto<TimeLogResponseDto>>> CreateTimeLog([FromBody] CreateTimeLogDto dto)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _timeLoggingService.CreateTimeLogAsync(userId, dto);
         return Ok(ApiResponseDto<TimeLogResponseDto>.SuccessResponse(result, "Time log created successfully"));
     }
 
     [HttpPut("{logId}")]
-    public async Task<ActionResult<ApiResponseDto<TimeLogResponseDto>>> UpdateTimeLog(int logId, [FromBody] CreateTimeLogDto dto)
+    public async Task<ActionResult<ApiResponseDto<TimeLogResponseDto>>> UpdateTimeLog(Guid logId, [FromBody] CreateTimeLogDto dto)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _timeLoggingService.UpdateTimeLogAsync(logId, userId, dto);
         return Ok(ApiResponseDto<TimeLogResponseDto>.SuccessResponse(result, "Time log updated successfully"));
     }
 
     [HttpDelete("{logId}")]
-    public async Task<ActionResult<ApiResponseDto<bool>>> DeleteTimeLog(int logId)
+    public async Task<ActionResult<ApiResponseDto<bool>>> DeleteTimeLog(Guid logId)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _timeLoggingService.DeleteTimeLogAsync(logId, userId);
         return Ok(ApiResponseDto<bool>.SuccessResponse(result, "Time log deleted successfully"));
     }
 
     [HttpGet("{logId}")]
-    public async Task<ActionResult<ApiResponseDto<TimeLogResponseDto>>> GetTimeLogById(int logId)
+    public async Task<ActionResult<ApiResponseDto<TimeLogResponseDto>>> GetTimeLogById(Guid logId)
     {
         var result = await _timeLoggingService.GetTimeLogByIdAsync(logId);
         return Ok(ApiResponseDto<TimeLogResponseDto>.SuccessResponse(result));
@@ -55,16 +55,16 @@ public class TimeLogController : ControllerBase
         [FromQuery] DateTime? startDate,
         [FromQuery] DateTime? endDate)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _timeLoggingService.GetUserTimeLogsAsync(userId, startDate, endDate);
         return Ok(ApiResponseDto<IEnumerable<TimeLogResponseDto>>.SuccessResponse(result));
     }
 
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpPost("{logId}/approve")]
-    public async Task<ActionResult<ApiResponseDto<bool>>> ApproveTimeLog(int logId)
+    public async Task<ActionResult<ApiResponseDto<bool>>> ApproveTimeLog(Guid logId)
     {
-        var managerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var managerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _timeLoggingService.ApproveTimeLogAsync(logId, managerId);
         return Ok(ApiResponseDto<bool>.SuccessResponse(result, "Time log approved successfully"));
     }
@@ -74,14 +74,14 @@ public class TimeLogController : ControllerBase
         [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _timeLoggingService.CalculateTotalHoursAsync(userId, startDate, endDate);
         return Ok(ApiResponseDto<decimal>.SuccessResponse(result));
     }
 
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("team/{managerId}")]
-    public async Task<ActionResult<ApiResponseDto<IEnumerable<DTOs.TimeLog.TeamTimeLogDto>>>> GetTeamTimeLogs(int managerId)
+    public async Task<ActionResult<ApiResponseDto<IEnumerable<DTOs.TimeLog.TeamTimeLogDto>>>> GetTeamTimeLogs(Guid managerId)
     {
         var logs = await _timeLoggingService.GetTeamTimeLogsByManagerIdAsync(managerId);
 

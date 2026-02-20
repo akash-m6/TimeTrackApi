@@ -13,61 +13,70 @@ public class NotificationService : INotificationService
         _unitOfWork = unitOfWork;
     }
 
-    public async TaskAsync CreateNotificationAsync(int userId, string type, string message)
+    public async TaskAsync CreateNotificationAsync(Guid userId, string type, string message)
     {
-        var notification = new NotificationEntity
+        // ✅ Changed to use new Notification model
+        var notification = new Notification
         {
             UserId = userId,
             Type = type,
             Message = message,
-            Status = "Unread",
-            CreatedDate = DateTime.UtcNow
+            IsRead = false,
+            CreatedAt = DateTime.UtcNow
         };
 
         await _unitOfWork.Notifications.AddAsync(notification);
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async System.Threading.Tasks.Task<IEnumerable<NotificationEntity>> GetUserNotificationsAsync(int userId)
+    // ✅ Changed int to Guid
+    public async System.Threading.Tasks.Task<IEnumerable<Notification>> GetUserNotificationsAsync(Guid userId)
     {
         return await _unitOfWork.Notifications.GetNotificationsByUserIdAsync(userId);
     }
 
-    public async System.Threading.Tasks.Task<IEnumerable<NotificationEntity>> GetUnreadNotificationsAsync(int userId)
+    // ✅ Changed int to Guid
+    public async System.Threading.Tasks.Task<IEnumerable<Notification>> GetUnreadNotificationsAsync(Guid userId)
     {
         return await _unitOfWork.Notifications.GetUnreadNotificationsAsync(userId);
     }
 
-    public async System.Threading.Tasks.Task<int> GetUnreadCountAsync(int userId)
+    // ✅ Changed int to Guid
+    public async System.Threading.Tasks.Task<int> GetUnreadCountAsync(Guid userId)
     {
         return await _unitOfWork.Notifications.GetUnreadCountAsync(userId);
     }
 
-    public async TaskAsync MarkAsReadAsync(int notificationId)
+    // ✅ Changed int to Guid
+    public async TaskAsync MarkAsReadAsync(Guid notificationId)
     {
         await _unitOfWork.Notifications.MarkAsReadAsync(notificationId);
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async TaskAsync MarkAllAsReadAsync(int userId)
+    // ✅ Changed int to Guid
+    public async TaskAsync MarkAllAsReadAsync(Guid userId)
     {
         await _unitOfWork.Notifications.MarkAllAsReadAsync(userId);
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async TaskAsync SendTaskAssignmentNotificationAsync(int userId, string taskTitle)
+    // ✅ Changed int to Guid
+    public async TaskAsync SendTaskAssignmentNotificationAsync(Guid userId, string taskTitle)
     {
         var message = $"New task assigned: '{taskTitle}'. Please review and start working on it.";
         await CreateNotificationAsync(userId, "TaskAssigned", message);
     }
 
-    public async TaskAsync SendLogReminderNotificationAsync(int userId)
+    // ✅ Changed int to Guid
+    public async TaskAsync SendLogReminderNotificationAsync(Guid userId)
     {
         var message = "Reminder: Please log your work hours for today.";
         await CreateNotificationAsync(userId, "LogReminder", message);
     }
 
-    public async TaskAsync SendTaskDeadlineNotificationAsync(int userId, string taskTitle, DateTime dueDate)
+    // ✅ Changed int to Guid
+    public async TaskAsync SendTaskDeadlineNotificationAsync(Guid userId, string taskTitle, DateTime dueDate)
     {
         var daysRemaining = (dueDate.Date - DateTime.UtcNow.Date).Days;
         var urgency = daysRemaining <= 1 ? "urgent" : $"due in {daysRemaining} days";

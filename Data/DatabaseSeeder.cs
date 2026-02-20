@@ -13,7 +13,7 @@ public static class DatabaseSeeder
         
         if (admin == null)
         {
-            admin = new UserEntity
+            admin = new User
             {
                 Name = "System Administrator",
                 Email = "admin@backend.com",
@@ -21,7 +21,7 @@ public static class DatabaseSeeder
                 Role = "Admin",
                 Department = "IT",
                 Status = "Active",
-                CreatedDate = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow
             };
 
             context.Users.Add(admin);
@@ -86,8 +86,10 @@ public static class DatabaseSeeder
                     Status = "Approved",
                     Priority = "High",
                     CreatedDate = now.AddDays(-7),
+                    CreatedAt = now.AddDays(-7),
                     StartedDate = now.AddDays(-6),
                     CompletedDate = now.AddDays(-5),
+                    CompletedAt = now.AddDays(-5),
                     IsApproved = true,
                     ApprovedDate = now.AddDays(-4),
                     ApprovedByUserId = admin.UserId
@@ -102,8 +104,10 @@ public static class DatabaseSeeder
                     Status = "Completed",
                     Priority = "High",
                     CreatedDate = now.AddDays(-5),
+                    CreatedAt = now.AddDays(-5),
                     StartedDate = now.AddDays(-4),
                     CompletedDate = now.AddDays(-1),
+                    CompletedAt = now.AddDays(-1),
                     IsApproved = false
                 },
                 new TaskEntity
@@ -116,6 +120,7 @@ public static class DatabaseSeeder
                     Status = "InProgress",
                     Priority = "Medium",
                     CreatedDate = now.AddDays(-3),
+                    CreatedAt = now.AddDays(-3),
                     StartedDate = now.AddDays(-2),
                     IsApproved = false
                 },
@@ -130,6 +135,7 @@ public static class DatabaseSeeder
                     Priority = "Low",
                     DueDate = now.AddDays(7),
                     CreatedDate = now,
+                    CreatedAt = now,
                     IsApproved = false
                 }
             };

@@ -13,7 +13,7 @@ public class TimeLoggingService : ITimeLoggingService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<TimeLogResponseDto> CreateTimeLogAsync(int userId, CreateTimeLogDto dto)
+    public async Task<TimeLogResponseDto> CreateTimeLogAsync(Guid userId, CreateTimeLogDto dto)
     {
         var existingLog = await _unitOfWork.TimeLogs.GetLogByUserAndDateAsync(userId, dto.Date);
         if (existingLog != null)
@@ -23,7 +23,7 @@ public class TimeLoggingService : ITimeLoggingService
 
         var totalHours = CalculateTotalHours(dto.StartTime, dto.EndTime, dto.BreakDuration);
 
-        var timeLog = new TimeLogEntity
+        var timeLog = new TimeLog
         {
             UserId = userId,
             Date = dto.Date.Date,
@@ -33,7 +33,7 @@ public class TimeLoggingService : ITimeLoggingService
             TotalHours = totalHours,
             Notes = dto.Notes,
             IsApproved = false,
-            CreatedDate = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
 
         await _unitOfWork.TimeLogs.AddAsync(timeLog);
@@ -42,7 +42,7 @@ public class TimeLoggingService : ITimeLoggingService
         return await MapToResponseDto(timeLog);
     }
 
-    public async Task<TimeLogResponseDto> UpdateTimeLogAsync(int logId, int userId, CreateTimeLogDto dto)
+    public async Task<TimeLogResponseDto> UpdateTimeLogAsync(Guid logId, Guid userId, CreateTimeLogDto dto)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(logId);
         
@@ -61,7 +61,7 @@ public class TimeLoggingService : ITimeLoggingService
         timeLog.BreakDuration = dto.BreakDuration;
         timeLog.TotalHours = CalculateTotalHours(dto.StartTime, dto.EndTime, dto.BreakDuration);
         timeLog.Notes = dto.Notes;
-        timeLog.ModifiedDate = DateTime.UtcNow;
+        timeLog.UpdatedAt = DateTime.UtcNow;
 
         _unitOfWork.TimeLogs.Update(timeLog);
         await _unitOfWork.SaveChangesAsync();
@@ -69,7 +69,7 @@ public class TimeLoggingService : ITimeLoggingService
         return await MapToResponseDto(timeLog);
     }
 
-    public async Task<bool> DeleteTimeLogAsync(int logId, int userId)
+    public async Task<bool> DeleteTimeLogAsync(Guid logId, Guid userId)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(logId);
         
@@ -88,7 +88,7 @@ public class TimeLoggingService : ITimeLoggingService
         return true;
     }
 
-    public async Task<TimeLogResponseDto> GetTimeLogByIdAsync(int logId)
+    public async Task<TimeLogResponseDto> GetTimeLogByIdAsync(Guid logId)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(logId);
         
@@ -98,9 +98,9 @@ public class TimeLoggingService : ITimeLoggingService
         return await MapToResponseDto(timeLog);
     }
 
-    public async Task<IEnumerable<TimeLogResponseDto>> GetUserTimeLogsAsync(int userId, DateTime? startDate, DateTime? endDate)
+    public async Task<IEnumerable<TimeLogResponseDto>> GetUserTimeLogsAsync(Guid userId, DateTime? startDate, DateTime? endDate)
     {
-        IEnumerable<TimeLogEntity> logs;
+        IEnumerable<TimeLog> logs;
 
         if (startDate.HasValue && endDate.HasValue)
         {
@@ -123,7 +123,7 @@ public class TimeLoggingService : ITimeLoggingService
             TotalHours = log.TotalHours,
             Notes = log.Notes,
             IsApproved = log.IsApproved,
-            CreatedDate = log.CreatedDate
+            CreatedDate = log.CreatedAt
         });
     }
 
@@ -143,11 +143,11 @@ public class TimeLoggingService : ITimeLoggingService
             TotalHours = log.TotalHours,
             Notes = log.Notes,
             IsApproved = log.IsApproved,
-            CreatedDate = log.CreatedDate
+            CreatedDate = log.CreatedAt
         });
     }
 
-    public async Task<bool> ApproveTimeLogAsync(int logId, int managerId)
+    public async Task<bool> ApproveTimeLogAsync(Guid logId, Guid managerId)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(logId);
         
@@ -155,7 +155,7 @@ public class TimeLoggingService : ITimeLoggingService
             return false;
 
         timeLog.IsApproved = true;
-        timeLog.ModifiedDate = DateTime.UtcNow;
+        timeLog.UpdatedAt = DateTime.UtcNow;
 
         _unitOfWork.TimeLogs.Update(timeLog);
         await _unitOfWork.SaveChangesAsync();
@@ -163,19 +163,19 @@ public class TimeLoggingService : ITimeLoggingService
         return true;
     }
 
-    public async Task<decimal> CalculateTotalHoursAsync(int userId, DateTime startDate, DateTime endDate)
+    public async Task<decimal> CalculateTotalHoursAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         return await _unitOfWork.TimeLogs.GetTotalHoursByUserAsync(userId, startDate, endDate);
     }
 
-    public async Task<IEnumerable<DTOs.TimeLog.TeamTimeLogDto>> GetTeamTimeLogsByManagerIdAsync(int managerId)
+    public async Task<IEnumerable<TeamTimeLogDto>> GetTeamTimeLogsByManagerIdAsync(Guid managerId)
     {
         var employees = await _unitOfWork.Users.GetEmployeesByManagerIdAsync(managerId);
 
         if (employees == null || !employees.Any())
-            return Enumerable.Empty<DTOs.TimeLog.TeamTimeLogDto>();
+            return Enumerable.Empty<TeamTimeLogDto>();
 
-        var result = new List<DTOs.TimeLog.TeamTimeLogDto>();
+        var result = new List<TeamTimeLogDto>();
 
         foreach (var emp in employees)
         {
@@ -183,7 +183,7 @@ public class TimeLoggingService : ITimeLoggingService
 
             foreach (var log in logs)
             {
-                result.Add(new DTOs.TimeLog.TeamTimeLogDto
+                result.Add(new TeamTimeLogDto
                 {
                     EmployeeName = emp.Name,
                     Date = log.Date,
@@ -198,7 +198,7 @@ public class TimeLoggingService : ITimeLoggingService
         return result;
     }
 
-    public async Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<int> userIds, DateTime date)
+    public async Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<Guid> userIds, DateTime date)
     {
         return await _unitOfWork.TimeLogs.GetTotalHoursByUsersForDateAsync(userIds, date);
     }
@@ -210,7 +210,7 @@ public class TimeLoggingService : ITimeLoggingService
         return (decimal)workTime.TotalHours;
     }
 
-    private async Task<TimeLogResponseDto> MapToResponseDto(TimeLogEntity timeLog)
+    private async Task<TimeLogResponseDto> MapToResponseDto(TimeLog timeLog)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(timeLog.UserId);
 
@@ -226,7 +226,7 @@ public class TimeLoggingService : ITimeLoggingService
             TotalHours = timeLog.TotalHours,
             Notes = timeLog.Notes,
             IsApproved = timeLog.IsApproved,
-            CreatedDate = timeLog.CreatedDate
+            CreatedDate = timeLog.CreatedAt
         };
     }
 }

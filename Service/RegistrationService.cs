@@ -1,9 +1,6 @@
-using BCrypt.Net;
 using TimeTrack.API.DTOs.Registration;
 using TimeTrack.API.Models;
-using TimeTrack.API.Models.Enums;
 using TimeTrack.API.Repository.IRepository;
-using TaskAsync = System.Threading.Tasks.Task;
 
 namespace TimeTrack.API.Service;
 
@@ -16,48 +13,28 @@ public class RegistrationService : IRegistrationService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<RegistrationResponseDto> SubmitRegistrationAsync(RegistrationRequestDto request)
+    public async Task<PendingRegistration> ApplyForRegistrationAsync(RegistrationApplicationDto dto)
     {
-        // Validate role - only Employee and Manager can register via this flow
-        var allowedRoles = new[] { "Employee", "Manager" };
-        if (!allowedRoles.Contains(request.Role, StringComparer.OrdinalIgnoreCase))
+        // Check if email already exists
+        var existingUser = await _unitOfWork.Users.GetByEmailAsync(dto.Email);
+        if (existingUser != null)
         {
-            throw new ArgumentException("Only Employee and Manager roles can register through this portal.");
+            throw new InvalidOperationException("A user with this email already exists");
         }
 
-        // Validate department
-        if (!DepartmentType.IsValid(request.Department))
+        var existingApplication = await _unitOfWork.PendingRegistrations.GetByEmailAsync(dto.Email);
+        if (existingApplication != null && existingApplication.Status == "Pending")
         {
-            throw new ArgumentException($"Invalid department. Allowed: {DepartmentType.GetValidDepartmentsString()}");
+            throw new InvalidOperationException("A pending registration already exists for this email");
         }
 
-        // Check if email already exists in Users table
-        if (await _unitOfWork.Users.EmailExistsAsync(request.Email))
+        var registration = new PendingRegistration
         {
-            throw new InvalidOperationException("Email already registered as an active user.");
-        }
-
-        // Check if email already has a pending registration
-        var existingRegistration = await _unitOfWork.PendingRegistrations.GetByEmailAsync(request.Email);
-        if (existingRegistration != null)
-        {
-            if (existingRegistration.Status == "Pending")
-            {
-                throw new InvalidOperationException("A registration request with this email is already pending approval.");
-            }
-            if (existingRegistration.Status == "Rejected")
-            {
-                throw new InvalidOperationException("This email was previously rejected. Please contact the administrator.");
-            }
-        }
-
-        var registration = new PendingRegistrationEntity
-        {
-            Name = request.Name,
-            Email = request.Email.ToLower(),
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = request.Role,
-            Department = request.Department,
+            Name = dto.Name,
+            Email = dto.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            Role = dto.Role,
+            Department = dto.Department,
             Status = "Pending",
             AppliedDate = DateTime.UtcNow
         };
@@ -65,53 +42,45 @@ public class RegistrationService : IRegistrationService
         await _unitOfWork.PendingRegistrations.AddAsync(registration);
         await _unitOfWork.SaveChangesAsync();
 
-        return new RegistrationResponseDto
-        {
-            RegistrationId = registration.RegistrationId,
-            Message = "Registration submitted successfully. Please wait for admin approval.",
-            Status = "Pending"
-        };
+        return registration;
     }
 
-    public async Task<IEnumerable<PendingRegistrationDto>> GetAllRegistrationsAsync()
+    public async Task<IEnumerable<PendingRegistration>> GetAllRegistrationsAsync()
     {
-        var registrations = await _unitOfWork.PendingRegistrations.GetAllAsync();
-        return registrations.Select(MapToDto).OrderByDescending(r => r.AppliedDate);
+        return await _unitOfWork.PendingRegistrations.GetAllAsync();
     }
 
-    public async Task<IEnumerable<PendingRegistrationDto>> GetPendingRegistrationsAsync()
+    public async Task<IEnumerable<PendingRegistration>> GetPendingRegistrationsAsync()
     {
-        var registrations = await _unitOfWork.PendingRegistrations.GetByStatusAsync("Pending");
-        return registrations.Select(MapToDto);
+        return await _unitOfWork.PendingRegistrations.GetPendingAsync();
     }
 
-    public async Task<IEnumerable<PendingRegistrationDto>> GetApprovedRegistrationsAsync()
+    public async Task<IEnumerable<PendingRegistration>> GetApprovedRegistrationsAsync()
     {
-        var registrations = await _unitOfWork.PendingRegistrations.GetByStatusAsync("Approved");
-        return registrations.Select(MapToDto);
+        return await _unitOfWork.PendingRegistrations.GetByStatusAsync("Approved");
     }
 
-    public async Task<IEnumerable<PendingRegistrationDto>> GetRejectedRegistrationsAsync()
+    public async Task<IEnumerable<PendingRegistration>> GetRejectedRegistrationsAsync()
     {
-        var registrations = await _unitOfWork.PendingRegistrations.GetByStatusAsync("Rejected");
-        return registrations.Select(MapToDto);
+        return await _unitOfWork.PendingRegistrations.GetByStatusAsync("Rejected");
     }
 
-    public async Task<RegistrationResponseDto> ApproveRegistrationAsync(int registrationId, int adminUserId)
+    public async Task<int> GetPendingCountAsync()
+    {
+        var pending = await _unitOfWork.PendingRegistrations.GetPendingAsync();
+        return pending.Count();
+    }
+
+    public async Task<bool> ApproveRegistrationAsync(Guid registrationId, Guid approverId)
     {
         var registration = await _unitOfWork.PendingRegistrations.GetByIdAsync(registrationId);
-        if (registration == null)
+        if (registration == null || registration.Status != "Pending")
         {
-            throw new KeyNotFoundException("Registration not found.");
+            return false;
         }
 
-        if (registration.Status != "Pending")
-        {
-            throw new InvalidOperationException($"Registration has already been {registration.Status.ToLower()}.");
-        }
-
-        // Create the user in the Users table
-        var user = new UserEntity
+        // Create actual user account
+        var user = new User
         {
             Name = registration.Name,
             Email = registration.Email,
@@ -119,7 +88,7 @@ public class RegistrationService : IRegistrationService
             Role = registration.Role,
             Department = registration.Department,
             Status = "Active",
-            CreatedDate = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
 
         await _unitOfWork.Users.AddAsync(user);
@@ -127,81 +96,109 @@ public class RegistrationService : IRegistrationService
         // Update registration status
         registration.Status = "Approved";
         registration.ProcessedDate = DateTime.UtcNow;
-        registration.ProcessedByUserId = adminUserId;
-        _unitOfWork.PendingRegistrations.Update(registration);
+        registration.ProcessedByUserId = approverId;
 
+        _unitOfWork.PendingRegistrations.Update(registration);
         await _unitOfWork.SaveChangesAsync();
 
-        return new RegistrationResponseDto
-        {
-            RegistrationId = registrationId,
-            Message = $"Registration approved. {registration.Name} can now login.",
-            Status = "Approved"
-        };
+        return true;
     }
 
-    public async Task<RegistrationResponseDto> RejectRegistrationAsync(int registrationId, int adminUserId, string? reason)
+    public async Task<bool> RejectRegistrationAsync(Guid registrationId, Guid rejectorId, string reason)
     {
         var registration = await _unitOfWork.PendingRegistrations.GetByIdAsync(registrationId);
-        if (registration == null)
+        if (registration == null || registration.Status != "Pending")
         {
-            throw new KeyNotFoundException("Registration not found.");
+            return false;
         }
 
-        if (registration.Status != "Pending")
-        {
-            throw new InvalidOperationException($"Registration has already been {registration.Status.ToLower()}.");
-        }
-
-        // Update registration status - keep record in database as rejected
         registration.Status = "Rejected";
-        registration.ProcessedDate = DateTime.UtcNow;
-        registration.ProcessedByUserId = adminUserId;
         registration.RejectionReason = reason;
-        _unitOfWork.PendingRegistrations.Update(registration);
+        registration.ProcessedDate = DateTime.UtcNow;
+        registration.ProcessedByUserId = rejectorId;
 
+        _unitOfWork.PendingRegistrations.Update(registration);
         await _unitOfWork.SaveChangesAsync();
 
-        return new RegistrationResponseDto
-        {
-            RegistrationId = registrationId,
-            Message = $"Registration rejected for {registration.Name}.",
-            Status = "Rejected"
-        };
+        return true;
     }
 
-    public async TaskAsync DeleteRegistrationAsync(int registrationId)
+    public async Task<bool> DeleteRegistrationAsync(Guid registrationId)
     {
         var registration = await _unitOfWork.PendingRegistrations.GetByIdAsync(registrationId);
         if (registration == null)
         {
-            throw new KeyNotFoundException("Registration not found.");
+            return false;
         }
 
         _unitOfWork.PendingRegistrations.Delete(registration);
         await _unitOfWork.SaveChangesAsync();
+
+        return true;
     }
 
-    public async Task<int> GetPendingCountAsync()
+    public async Task<RegistrationResponseDto> SubmitRegistrationAsync(RegistrationRequestDto dto)
     {
-        var pending = await _unitOfWork.PendingRegistrations.GetByStatusAsync("Pending");
-        return pending.Count();
-    }
-
-    private static PendingRegistrationDto MapToDto(PendingRegistrationEntity entity)
-    {
-        return new PendingRegistrationDto
+        // 1) Basic validation
+        if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
         {
-            RegistrationId = entity.RegistrationId,
-            Name = entity.Name,
-            Email = entity.Email,
-            Role = entity.Role,
-            Department = entity.Department,
-            Status = entity.Status,
-            AppliedDate = entity.AppliedDate,
-            ProcessedDate = entity.ProcessedDate,
-            ProcessedByName = entity.ProcessedByUser?.Name,
-            RejectionReason = entity.RejectionReason
+            return new RegistrationResponseDto
+            {
+                Success = false,
+                Message = "Email and Password are required."
+            };
+        }
+
+        // 2) Reject if a user already exists
+        var existingUser = await _unitOfWork.Users.GetByEmailAsync(dto.Email);
+        if (existingUser != null)
+        {
+            return new RegistrationResponseDto
+            {
+                Success = false,
+                Message = "A user with this email already exists."
+            };
+        }
+
+        // 3) Reject if there is a PENDING registration for the same email
+        var existingApplication = await _unitOfWork.PendingRegistrations.GetByEmailAsync(dto.Email);
+        if (existingApplication != null && string.Equals(existingApplication.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+        {
+            return new RegistrationResponseDto
+            {
+                Success = false,
+                Message = "A pending registration already exists for this email.",
+                RegistrationId = existingApplication.RegistrationId,
+                Status = existingApplication.Status
+            };
+        }
+
+        // 4) Create a fresh pending registration
+        var pending = new PendingRegistration
+        {
+            Name = dto.Name,
+            Email = dto.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            Role = string.IsNullOrWhiteSpace(dto.Role) ? "Employee" : dto.Role,
+            Department = dto.Department,
+            Status = "Pending",
+            AppliedDate = DateTime.UtcNow
+        };
+
+        await _unitOfWork.PendingRegistrations.AddAsync(pending);
+        await _unitOfWork.SaveChangesAsync();
+
+        // 5) Build a friendly response
+        return new RegistrationResponseDto
+        {
+            Success = true,
+            Message = "Registration submitted successfully and is pending approval.",
+            RegistrationId = pending.RegistrationId,
+            Status = pending.Status,
+            Email = pending.Email,
+            Name = pending.Name,
+            Role = pending.Role
         };
     }
+
 }

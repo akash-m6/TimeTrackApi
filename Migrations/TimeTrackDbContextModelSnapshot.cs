@@ -22,37 +22,38 @@ namespace TimeTrack.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TimeTrack.API.Models.NotificationEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.Notification", b =>
                 {
-                    b.Property<int>("NotificationId")
+                    b.Property<Guid>("NotificationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
-
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("ReadDate")
+                    b.Property<DateTime?>("ReadAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("NotificationId");
 
@@ -61,13 +62,11 @@ namespace TimeTrack.API.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.PendingRegistrationEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.PendingRegistration", b =>
                 {
-                    b.Property<int>("RegistrationId")
+                    b.Property<Guid>("RegistrationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RegistrationId"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("AppliedDate")
                         .HasColumnType("datetime2");
@@ -92,8 +91,8 @@ namespace TimeTrack.API.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int?>("ProcessedByUserId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ProcessedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("ProcessedDate")
                         .HasColumnType("datetime2");
@@ -119,15 +118,14 @@ namespace TimeTrack.API.Migrations
                     b.ToTable("PendingRegistrations");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.ProjectEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.Project", b =>
                 {
-                    b.Property<int>("ProjectId")
+                    b.Property<Guid>("ProjectId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectId"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("Budget")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ClientName")
@@ -146,8 +144,8 @@ namespace TimeTrack.API.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ManagerUserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ManagerUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ProjectName")
                         .IsRequired()
@@ -171,32 +169,35 @@ namespace TimeTrack.API.Migrations
 
             modelBuilder.Entity("TimeTrack.API.Models.TaskEntity", b =>
                 {
-                    b.Property<int>("TaskId")
+                    b.Property<Guid>("TaskId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskId"));
-
-                    b.Property<int?>("ApprovedByUserId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("ApprovedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("AssignedToUserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AssignedToUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("CompletedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -204,7 +205,8 @@ namespace TimeTrack.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("EstimatedHours")
-                        .HasColumnType("decimal(5,2)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
@@ -214,8 +216,8 @@ namespace TimeTrack.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("StartedDate")
                         .HasColumnType("datetime2");
@@ -230,6 +232,9 @@ namespace TimeTrack.API.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("TaskId");
 
                     b.HasIndex("ApprovedByUserId");
@@ -240,34 +245,34 @@ namespace TimeTrack.API.Migrations
 
                     b.HasIndex("ProjectId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.TaskTimeEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.TaskTime", b =>
                 {
-                    b.Property<int>("TaskTimeId")
+                    b.Property<Guid>("TaskTimeId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskTimeId"));
-
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("HoursSpent")
+                        .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
 
-                    b.Property<int>("TaskId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("WorkDescription")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -280,18 +285,16 @@ namespace TimeTrack.API.Migrations
                     b.ToTable("TaskTimes");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.TimeLogEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.TimeLog", b =>
                 {
-                    b.Property<int>("LogId")
+                    b.Property<Guid>("LogId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LogId"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<TimeSpan>("BreakDuration")
                         .HasColumnType("time");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("Date")
@@ -303,11 +306,7 @@ namespace TimeTrack.API.Migrations
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -315,10 +314,14 @@ namespace TimeTrack.API.Migrations
                         .HasColumnType("time");
 
                     b.Property<decimal>("TotalHours")
+                        .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("LogId");
 
@@ -327,19 +330,16 @@ namespace TimeTrack.API.Migrations
                     b.ToTable("TimeLogs");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.UserEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.User", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
-
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Department")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -348,11 +348,8 @@ namespace TimeTrack.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("LastLoginDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ManagerId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -361,8 +358,7 @@ namespace TimeTrack.API.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -371,8 +367,11 @@ namespace TimeTrack.API.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("UserId");
 
@@ -381,9 +380,9 @@ namespace TimeTrack.API.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.NotificationEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.Notification", b =>
                 {
-                    b.HasOne("TimeTrack.API.Models.UserEntity", "User")
+                    b.HasOne("TimeTrack.API.Models.User", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -392,21 +391,21 @@ namespace TimeTrack.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.PendingRegistrationEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.PendingRegistration", b =>
                 {
-                    b.HasOne("TimeTrack.API.Models.UserEntity", "ProcessedByUser")
+                    b.HasOne("TimeTrack.API.Models.User", "ProcessedByUser")
                         .WithMany()
                         .HasForeignKey("ProcessedByUserId");
 
                     b.Navigation("ProcessedByUser");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.ProjectEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.Project", b =>
                 {
-                    b.HasOne("TimeTrack.API.Models.UserEntity", "Manager")
+                    b.HasOne("TimeTrack.API.Models.User", "Manager")
                         .WithMany()
                         .HasForeignKey("ManagerUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Manager");
@@ -414,25 +413,30 @@ namespace TimeTrack.API.Migrations
 
             modelBuilder.Entity("TimeTrack.API.Models.TaskEntity", b =>
                 {
-                    b.HasOne("TimeTrack.API.Models.UserEntity", "ApprovedByUser")
+                    b.HasOne("TimeTrack.API.Models.User", "ApprovedByUser")
                         .WithMany()
-                        .HasForeignKey("ApprovedByUserId");
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("TimeTrack.API.Models.UserEntity", "AssignedToUser")
-                        .WithMany("AssignedTasks")
+                    b.HasOne("TimeTrack.API.Models.User", "AssignedToUser")
+                        .WithMany()
                         .HasForeignKey("AssignedToUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("TimeTrack.API.Models.UserEntity", "CreatedByUser")
-                        .WithMany("CreatedTasks")
+                    b.HasOne("TimeTrack.API.Models.User", "CreatedByUser")
+                        .WithMany()
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TimeTrack.API.Models.ProjectEntity", "Project")
+                    b.HasOne("TimeTrack.API.Models.Project", "Project")
                         .WithMany("Tasks")
                         .HasForeignKey("ProjectId");
+
+                    b.HasOne("TimeTrack.API.Models.User", null)
+                        .WithMany("Tasks")
+                        .HasForeignKey("UserId");
 
                     b.Navigation("ApprovedByUser");
 
@@ -443,7 +447,7 @@ namespace TimeTrack.API.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.TaskTimeEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.TaskTime", b =>
                 {
                     b.HasOne("TimeTrack.API.Models.TaskEntity", "Task")
                         .WithMany("TaskTimes")
@@ -451,10 +455,10 @@ namespace TimeTrack.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TimeTrack.API.Models.UserEntity", "User")
+                    b.HasOne("TimeTrack.API.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Task");
@@ -462,9 +466,9 @@ namespace TimeTrack.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.TimeLogEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.TimeLog", b =>
                 {
-                    b.HasOne("TimeTrack.API.Models.UserEntity", "User")
+                    b.HasOne("TimeTrack.API.Models.User", "User")
                         .WithMany("TimeLogs")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -473,16 +477,17 @@ namespace TimeTrack.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.UserEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.User", b =>
                 {
-                    b.HasOne("TimeTrack.API.Models.UserEntity", "Manager")
+                    b.HasOne("TimeTrack.API.Models.User", "Manager")
                         .WithMany("AssignedEmployees")
-                        .HasForeignKey("ManagerId");
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Manager");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.ProjectEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.Project", b =>
                 {
                     b.Navigation("Tasks");
                 });
@@ -492,15 +497,13 @@ namespace TimeTrack.API.Migrations
                     b.Navigation("TaskTimes");
                 });
 
-            modelBuilder.Entity("TimeTrack.API.Models.UserEntity", b =>
+            modelBuilder.Entity("TimeTrack.API.Models.User", b =>
                 {
                     b.Navigation("AssignedEmployees");
 
-                    b.Navigation("AssignedTasks");
-
-                    b.Navigation("CreatedTasks");
-
                     b.Navigation("Notifications");
+
+                    b.Navigation("Tasks");
 
                     b.Navigation("TimeLogs");
                 });

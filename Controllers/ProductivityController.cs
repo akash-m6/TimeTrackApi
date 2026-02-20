@@ -27,7 +27,7 @@ public class ProductivityController : ControllerBase
         [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var report = await _analyticsService.GenerateUserReportAsync(userId, startDate, endDate);
         return Ok(ApiResponseDto<ProductivityReportDto>.SuccessResponse(report));
     }
@@ -38,7 +38,7 @@ public class ProductivityController : ControllerBase
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("user/{userId}")]
     public async Task<ActionResult<ApiResponseDto<ProductivityReportDto>>> GetUserProductivityReport(
-        int userId,
+        Guid userId,
         [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate)
     {
@@ -69,7 +69,7 @@ public class ProductivityController : ControllerBase
         [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var score = await _analyticsService.CalculateEfficiencyScoreAsync(userId, startDate, endDate);
         return Ok(ApiResponseDto<decimal>.SuccessResponse(score, "Efficiency score calculated"));
     }
@@ -82,7 +82,7 @@ public class ProductivityController : ControllerBase
         [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var rate = await _analyticsService.CalculateTaskCompletionRateAsync(userId, startDate, endDate);
         return Ok(ApiResponseDto<decimal>.SuccessResponse(rate, "Task completion rate calculated"));
     }

@@ -2,13 +2,13 @@ using TimeTrack.API.Models;
 
 namespace TimeTrack.API.Repository.IRepository;
 
-public interface ITimeLogRepository : IGenericRepository<TimeLogEntity>
+public interface ITimeLogRepository : IGenericRepository<TimeLog>
 {
-    Task<IEnumerable<TimeLogEntity>> GetLogsByUserIdAsync(int userId);
-    Task<IEnumerable<TimeLogEntity>> GetLogsByDateRangeAsync(int userId, DateTime startDate, DateTime endDate);
-    Task<IEnumerable<TimeLogEntity>> GetLogsByDepartmentAsync(string department, DateTime startDate, DateTime endDate);
-    Task<decimal> GetTotalHoursByUserAsync(int userId, DateTime startDate, DateTime endDate);
-    Task<IEnumerable<TimeLogEntity>> GetPendingApprovalLogsAsync(int managerId);
-    Task<TimeLogEntity> GetLogByUserAndDateAsync(int userId, DateTime date);
-    Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<int> userIds, DateTime date);
+    Task<IEnumerable<TimeLog>> GetLogsByUserIdAsync(Guid userId);
+    Task<IEnumerable<TimeLog>> GetLogsByDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate);
+    Task<IEnumerable<TimeLog>> GetLogsByDepartmentAsync(string department, DateTime startDate, DateTime endDate);
+    Task<decimal> GetTotalHoursByUserAsync(Guid userId, DateTime startDate, DateTime endDate);
+    Task<IEnumerable<TimeLog>> GetPendingApprovalLogsAsync(Guid managerId);
+    Task<TimeLog?> GetLogByUserAndDateAsync(Guid userId, DateTime date);
+    Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<Guid> userIds, DateTime date);
 }

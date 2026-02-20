@@ -8,13 +8,13 @@ using TimeTrack.API.Repository.IRepository;
 
 namespace TimeTrack.API.Repository;
 
-public class UserRepository : GenericRepository<UserEntity>, IUserRepository
+public class UserRepository : GenericRepository<User>, IUserRepository
 
 {
 
     public UserRepository(TimeTrackDbContext context) : base(context) { }
 
-    public async Task<UserEntity?> GetByEmailAsync(string email)
+    public async Task<User?> GetByEmailAsync(string email)
 
     {
 
@@ -30,7 +30,7 @@ public class UserRepository : GenericRepository<UserEntity>, IUserRepository
 
     }
 
-    public async Task<IEnumerable<UserEntity>> GetActiveUsersAsync()
+    public async Task<IEnumerable<User>> GetActiveUsersAsync()
 
     {
 
@@ -46,7 +46,7 @@ public class UserRepository : GenericRepository<UserEntity>, IUserRepository
 
     }
 
-    public async Task<IEnumerable<UserEntity>> GetUsersByDepartmentAsync(string department)
+    public async Task<IEnumerable<User>> GetUsersByDepartmentAsync(string department)
 
     {
 
@@ -60,7 +60,7 @@ public class UserRepository : GenericRepository<UserEntity>, IUserRepository
 
     }
 
-    public async Task<UserEntity?> GetByIdWithManagerAsync(int userId)
+    public async Task<User?> GetByIdWithManagerAsync(Guid userId)
 
     {
 
@@ -74,7 +74,7 @@ public class UserRepository : GenericRepository<UserEntity>, IUserRepository
 
     }
 
-    public async Task<IEnumerable<UserEntity>> GetAllWithManagerAsync()
+    public async Task<IEnumerable<User>> GetAllWithManagerAsync()
 
     {
 
@@ -90,7 +90,7 @@ public class UserRepository : GenericRepository<UserEntity>, IUserRepository
 
     }
 
-    public async Task<IEnumerable<UserEntity>> GetEmployeesByManagerIdAsync(int managerId)
+    public async Task<IEnumerable<User>> GetEmployeesByManagerIdAsync(Guid managerId)
 
     {
 
@@ -102,7 +102,7 @@ public class UserRepository : GenericRepository<UserEntity>, IUserRepository
 
     }
 
-    public async Task<int> GetEmployeesCountByManagerIdAsync(int managerId)
+    public async Task<int> GetEmployeesCountByManagerIdAsync(Guid managerId)
 
     {
 

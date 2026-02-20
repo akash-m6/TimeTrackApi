@@ -1,17 +1,18 @@
 using TimeTrack.API.DTOs.Registration;
-using TaskAsync = System.Threading.Tasks.Task;
+using TimeTrack.API.Models;
 
 namespace TimeTrack.API.Service;
 
 public interface IRegistrationService
 {
-    System.Threading.Tasks.Task<RegistrationResponseDto> SubmitRegistrationAsync(RegistrationRequestDto request);
-    System.Threading.Tasks.Task<IEnumerable<PendingRegistrationDto>> GetAllRegistrationsAsync();
-    System.Threading.Tasks.Task<IEnumerable<PendingRegistrationDto>> GetPendingRegistrationsAsync();
-    System.Threading.Tasks.Task<IEnumerable<PendingRegistrationDto>> GetApprovedRegistrationsAsync();
-    System.Threading.Tasks.Task<IEnumerable<PendingRegistrationDto>> GetRejectedRegistrationsAsync();
-    System.Threading.Tasks.Task<RegistrationResponseDto> ApproveRegistrationAsync(int registrationId, int adminUserId);
-    System.Threading.Tasks.Task<RegistrationResponseDto> RejectRegistrationAsync(int registrationId, int adminUserId, string? reason);
-    TaskAsync DeleteRegistrationAsync(int registrationId);
-    System.Threading.Tasks.Task<int> GetPendingCountAsync();
+    Task<PendingRegistration> ApplyForRegistrationAsync(RegistrationApplicationDto dto);
+    Task<IEnumerable<PendingRegistration>> GetPendingRegistrationsAsync();
+    Task<IEnumerable<PendingRegistration>> GetAllRegistrationsAsync(); // <-- Add this line
+    Task<IEnumerable<PendingRegistration>> GetApprovedRegistrationsAsync();
+    Task<IEnumerable<PendingRegistration>> GetRejectedRegistrationsAsync();
+    Task<int> GetPendingCountAsync();
+    Task<bool> ApproveRegistrationAsync(Guid registrationId, Guid approverId);
+    Task<bool> RejectRegistrationAsync(Guid registrationId, Guid rejectorId, string reason);
+    Task<bool> DeleteRegistrationAsync(Guid registrationId);
+    Task<RegistrationResponseDto> SubmitRegistrationAsync(RegistrationRequestDto dto);
 }

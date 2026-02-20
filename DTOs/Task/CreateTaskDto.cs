@@ -12,9 +12,9 @@ public class CreateTaskDto
     public string Description { get; set; }
 
     [Required]
-    public int AssignedToUserId { get; set; }
+    public Guid AssignedToUserId { get; set; }
 
-    public int? ProjectId { get; set; }
+    public Guid? ProjectId { get; set; }
 
     [Required]
     [Range(0.1, 999.99)]

@@ -15,7 +15,7 @@ public class TaskManagementService : ITaskManagementService
         _notificationService = notificationService;
     }
 
-    public async Task<TaskResponseDto> CreateTaskAsync(int creatorId, CreateTaskDto dto)
+    public async Task<TaskResponseDto> CreateTaskAsync(Guid creatorId, CreateTaskDto dto)
     {
         var assignedUser = await _unitOfWork.Users.GetByIdAsync(dto.AssignedToUserId);
         if (assignedUser == null || assignedUser.Status != "Active")
@@ -57,7 +57,7 @@ public class TaskManagementService : ITaskManagementService
         return await BuildTaskResponseDto(taskEntity);
     }
 
-    public async Task<TaskResponseDto> UpdateTaskAsync(int taskId, CreateTaskDto dto)
+    public async Task<TaskResponseDto> UpdateTaskAsync(Guid taskId, CreateTaskDto dto)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
         if (taskEntity == null)
@@ -129,7 +129,7 @@ public class TaskManagementService : ITaskManagementService
         return await BuildTaskResponseDto(taskEntity);
     }
 
-    public async Task<bool> DeleteTaskAsync(int taskId)
+    public async Task<bool> DeleteTaskAsync(Guid taskId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
         if (taskEntity == null)
@@ -148,7 +148,7 @@ public class TaskManagementService : ITaskManagementService
         return true;
     }
 
-    public async Task<TaskResponseDto> GetTaskByIdAsync(int taskId)
+    public async Task<TaskResponseDto> GetTaskByIdAsync(Guid taskId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
         if (taskEntity == null)
@@ -159,7 +159,7 @@ public class TaskManagementService : ITaskManagementService
         return await BuildTaskResponseDto(taskEntity);
     }
 
-    public async Task<IEnumerable<TaskResponseDto>> GetUserTasksAsync(int userId)
+    public async Task<IEnumerable<TaskResponseDto>> GetUserTasksAsync(Guid userId)
     {
         var tasks = await _unitOfWork.Tasks.GetTasksByAssignedUserAsync(userId);
         var taskResponses = new List<TaskResponseDto>();
@@ -172,7 +172,7 @@ public class TaskManagementService : ITaskManagementService
         return taskResponses;
     }
 
-    public async Task<IEnumerable<TaskResponseDto>> GetCreatedTasksAsync(int creatorId)
+    public async Task<IEnumerable<TaskResponseDto>> GetCreatedTasksAsync(Guid creatorId)
     {
         var tasks = await _unitOfWork.Tasks.GetTasksByCreatorAsync(creatorId);
         var taskResponses = new List<TaskResponseDto>();
@@ -186,7 +186,7 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: START TASK ====================
-    public async Task<TaskResponseDto> StartTaskAsync(int taskId, int userId)
+    public async Task<TaskResponseDto> StartTaskAsync(Guid taskId, Guid userId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
         if (taskEntity == null)
@@ -221,7 +221,7 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: COMPLETE TASK ====================
-    public async Task<TaskResponseDto> CompleteTaskAsync(int taskId, int userId)
+    public async Task<TaskResponseDto> CompleteTaskAsync(Guid taskId, Guid userId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
         if (taskEntity == null)
@@ -257,7 +257,7 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: APPROVE TASK ====================
-    public async Task<TaskResponseDto> ApproveTaskAsync(int taskId, int managerId)
+    public async Task<TaskResponseDto> ApproveTaskAsync(Guid taskId, Guid managerId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
         if (taskEntity == null)
@@ -294,7 +294,7 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: REJECT TASK ====================
-    public async Task<TaskResponseDto> RejectTaskAsync(int taskId, int managerId, string reason)
+    public async Task<TaskResponseDto> RejectTaskAsync(Guid taskId, Guid managerId, string reason)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
         if (taskEntity == null)
@@ -326,7 +326,7 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: GET TASKS PENDING APPROVAL ====================
-    public async Task<IEnumerable<TaskResponseDto>> GetTasksPendingApprovalAsync(int managerId)
+    public async Task<IEnumerable<TaskResponseDto>> GetTasksPendingApprovalAsync(Guid managerId)
     {
         var tasks = await _unitOfWork.Tasks.GetTasksByCreatorAsync(managerId);
         var pendingApprovalTasks = tasks.Where(t => t.Status == "Completed" && !t.IsApproved);
@@ -340,7 +340,7 @@ public class TaskManagementService : ITaskManagementService
         return taskResponses;
     }
 
-    public async Task<bool> UpdateTaskStatusAsync(int taskId, string status)
+    public async Task<bool> UpdateTaskStatusAsync(Guid taskId, string status)
     {
         var validStatuses = new[] { "Pending", "InProgress", "Completed", "Approved" };
         if (!validStatuses.Contains(status))
@@ -378,7 +378,7 @@ public class TaskManagementService : ITaskManagementService
         return true;
     }
 
-    public async Task<bool> LogTaskTimeAsync(int userId, LogTaskTimeDto dto)
+    public async Task<bool> LogTaskTimeAsync(Guid userId, LogTaskTimeDto dto)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(dto.TaskId);
         if (taskEntity == null)
@@ -391,14 +391,14 @@ public class TaskManagementService : ITaskManagementService
             throw new UnauthorizedAccessException("You can only log time for tasks assigned to you");
         }
 
-        var taskTime = new TaskTimeEntity
+        var taskTime = new TaskTime
         {
             TaskId = dto.TaskId,
             UserId = userId,
             Date = dto.Date.Date,
             HoursSpent = dto.HoursSpent,
             WorkDescription = dto.WorkDescription,
-            CreatedDate = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
 
         await _unitOfWork.TaskTimes.AddAsync(taskTime);

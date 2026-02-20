@@ -28,12 +28,23 @@ namespace TimeTrack.API.Models
         [MaxLength(100)]
         public string? Department { get; set; }
 
+        [Required]
+        [MaxLength(50)]
+        public string Status { get; set; } = "Active";
+
+        public Guid? ManagerId { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 
         // Navigation properties
+        [ForeignKey("ManagerId")]
+        public User? Manager { get; set; }
+
+        public ICollection<User> AssignedEmployees { get; set; } = new List<User>();
+
         public ICollection<TimeLog> TimeLogs { get; set; } = new List<TimeLog>();
-        public ICollection<Task> Tasks { get; set; } = new List<Task>();
+        public ICollection<TaskEntity> Tasks { get; set; } = new List<TaskEntity>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
         // Constructor to ensure GUID is generated

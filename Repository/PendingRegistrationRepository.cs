@@ -5,30 +5,35 @@ using TimeTrack.API.Repository.IRepository;
 
 namespace TimeTrack.API.Repository;
 
-public class PendingRegistrationRepository : GenericRepository<PendingRegistrationEntity>, IPendingRegistrationRepository
+public class PendingRegistrationRepository : GenericRepository<PendingRegistration>, IPendingRegistrationRepository
 {
     public PendingRegistrationRepository(TimeTrackDbContext context) : base(context)
     {
     }
 
-    public async Task<PendingRegistrationEntity?> GetByEmailAsync(string email)
+    public async Task<PendingRegistration?> GetByEmailAsync(string email)
     {
-        return await _dbSet
-            .Include(r => r.ProcessedByUser)
-            .FirstOrDefaultAsync(r => r.Email.ToLower() == email.ToLower());
+        return await _dbSet.FirstOrDefaultAsync(r => r.Email == email);
     }
 
-    public async Task<IEnumerable<PendingRegistrationEntity>> GetByStatusAsync(string status)
+    public async Task<IEnumerable<PendingRegistration>> GetByStatusAsync(string status)
     {
         return await _dbSet
-            .Include(r => r.ProcessedByUser)
             .Where(r => r.Status == status)
             .OrderByDescending(r => r.AppliedDate)
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<PendingRegistration>> GetPendingAsync()
+    {
+        return await _dbSet
+            .Where(r => r.Status == "Pending")
+            .OrderBy(r => r.AppliedDate)
+            .ToListAsync();
+    }
+
     public async Task<bool> EmailExistsAsync(string email)
     {
-        return await _dbSet.AnyAsync(r => r.Email.ToLower() == email.ToLower());
+        return await _dbSet.AnyAsync(r => r.Email == email);
     }
 }

@@ -128,6 +128,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+
+
 var app = builder.Build();
 
 // Apply migrations & seed within execution strategy
