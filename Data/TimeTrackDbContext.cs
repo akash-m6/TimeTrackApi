@@ -11,7 +11,7 @@ namespace TimeTrack.API.Data
         {
         }
 
-        // ✅ Updated to use new Guid-based models
+        // Guid-based models
         public DbSet<User> Users { get; set; }
         public DbSet<TaskModel> Tasks { get; set; }
         public DbSet<Notification> Notifications { get; set; }

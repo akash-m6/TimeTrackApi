@@ -50,8 +50,6 @@ builder.Services.AddScoped<IProductivityService, ProductivityService>();
 // Memory cache for caching productivity per-user
 builder.Services.AddMemoryCache();
 
-//// Register productivity service
-//builder.Services.AddScoped<IProductivityService, ProductivityService>();
 
 // JWT
 var jwtKey = builder.Configuration["JwtSettings:SecretKey"];
