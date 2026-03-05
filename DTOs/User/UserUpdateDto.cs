@@ -1,5 +1,7 @@
 ﻿namespace TimeTrack.API.DTOs.User;
 
+// DTO: UserUpdateDto
+// PURPOSE: Transfers user update data from frontend to backend.
 public class UserUpdateDto
 {
     public string? FullName { get; set; }

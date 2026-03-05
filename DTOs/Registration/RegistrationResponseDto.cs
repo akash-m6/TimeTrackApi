@@ -1,5 +1,9 @@
 ﻿namespace TimeTrack.API.DTOs.Registration
 {
+// DTO: RegistrationResponseDto
+// PURPOSE: Transfers registration response data between backend and frontend.
+// DTO: RegistrationResponseDto
+// PURPOSE: Transfers registration response data between backend and frontend.
     public class RegistrationResponseDto
     {
         public bool Success { get; set; }

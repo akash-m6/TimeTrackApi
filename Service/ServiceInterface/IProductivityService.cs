@@ -2,11 +2,15 @@ using System;
 using System.Threading.Tasks;
 using TimeTrack.API.DTOs.Productivity;
 
+// SERVICE INTERFACE: IProductivityService
+// PURPOSE: Defines contract for productivity-related business logic.
+// SERVICE INTERFACE: IProductivityService
+// PURPOSE: Defines contract for productivity-related business logic.
+// SERVICE INTERFACE: IProductivityService
+// PURPOSE: Defines contract for productivity-related business logic.
 public interface IProductivityService
 {
     Task<ProductivityResponseDto> GetProductivityAsync(Guid userId);
-
-    // Add these missing method signatures to match controller usage
     Task<ProductivityReportDto> GenerateUserReportAsync(Guid userId, DateTime startDate, DateTime endDate);
     Task<ProductivityReportDto> GenerateDepartmentReportAsync(string department, DateTime startDate, DateTime endDate);
     Task<decimal> CalculateEfficiencyScoreAsync(Guid userId, DateTime startDate, DateTime endDate);

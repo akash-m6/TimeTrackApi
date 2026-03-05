@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace TimeTrack.API.DTOs.TimeLog;
 
+// DTO: TimeLogResponseDto
+// PURPOSE: Transfers time log response data between backend and frontend.
 public class TimeLogResponseDto
 {
     [JsonPropertyName("logId")]

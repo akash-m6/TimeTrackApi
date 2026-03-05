@@ -4,6 +4,8 @@ using TaskModel = TimeTrack.API.Models.TaskEntity;
 
 namespace TimeTrack.API.Data
 {
+// DB CONTEXT: TimeTrackDbContext
+// PURPOSE: Entity Framework Core context for TimeTrack application database.
     public class TimeTrackDbContext : DbContext
     {
         public TimeTrackDbContext(DbContextOptions<TimeTrackDbContext> options)
@@ -12,13 +14,21 @@ namespace TimeTrack.API.Data
         }
 
         // Guid-based models
+        // DBSET: Users table
         public DbSet<User> Users { get; set; }
+        // DBSET: Tasks table
         public DbSet<TaskModel> Tasks { get; set; }
+        // DBSET: Notifications table
         public DbSet<Notification> Notifications { get; set; }
+        // DBSET: TimeLogs table
         public DbSet<TimeLog> TimeLogs { get; set; }
+        // DBSET: TaskTimes table
         public DbSet<TaskTime> TaskTimes { get; set; }
+        // DBSET: PendingRegistrations table
         public DbSet<PendingRegistration> PendingRegistrations { get; set; }
+        // DBSET: Projects table
         public DbSet<Project> Projects { get; set; }
+        // DBSET: Breaks table
         public DbSet<Break> Breaks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

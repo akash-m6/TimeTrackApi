@@ -4,6 +4,9 @@ using TaskModel = TimeTrack.API.Models.TaskEntity;
 
 namespace TimeTrack.API.Models;
 
+
+// MODEL: Project
+// PURPOSE: Represents project table structure in the database.
 [Table("Projects")]
 public class Project
 {

@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TimeTrack.API.DTOs.Common;
 using TimeTrack.API.DTOs.TimeLog;
-using TimeTrack.API.Service;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Controllers;
 
+// CONTROLLER: TimeLogController
+// PURPOSE: Handles all time log-related API requests from frontend.
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
@@ -23,6 +25,10 @@ public class TimeLogController : ControllerBase
         _logger = logger;
     }
 
+    // API ENDPOINT: POST /api/timelog
+    // CALLED FROM FRONTEND: createTimeLog() function
+    // PURPOSE: Creates a new time log for the user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpPost]
     public async Task<ActionResult<ApiResponseDto<TimeLogResponseDto>>> CreateTimeLog([FromBody] CreateTimeLogDto dto)
     {
@@ -58,6 +64,10 @@ public class TimeLogController : ControllerBase
         }
     }
 
+    // API ENDPOINT: PUT /api/timelog/{logId}
+    // CALLED FROM FRONTEND: updateTimeLog() function
+    // PURPOSE: Updates an existing time log for the user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpPut("{logId}")]
     public async Task<ActionResult<ApiResponseDto<TimeLogResponseDto>>> UpdateTimeLog(Guid logId, [FromBody] CreateTimeLogDto dto)
     {
@@ -100,6 +110,10 @@ public class TimeLogController : ControllerBase
         }
     }
 
+    // API ENDPOINT: DELETE /api/timelog/{logId}
+    // CALLED FROM FRONTEND: deleteTimeLog() function
+    // PURPOSE: Deletes a time log for the user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpDelete("{logId}")]
     public async Task<ActionResult<ApiResponseDto<bool>>> DeleteTimeLog(Guid logId)
     {
@@ -108,6 +122,10 @@ public class TimeLogController : ControllerBase
         return Ok(ApiResponseDto<bool>.SuccessResponse(result, "Time log deleted successfully"));
     }
 
+    // API ENDPOINT: GET /api/timelog/{logId}
+    // CALLED FROM FRONTEND: getTimeLogById() function
+    // PURPOSE: Gets a time log by its ID.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("{logId}")]
     public async Task<ActionResult<ApiResponseDto<TimeLogResponseDto>>> GetTimeLogById(Guid logId)
     {
@@ -115,6 +133,10 @@ public class TimeLogController : ControllerBase
         return Ok(ApiResponseDto<TimeLogResponseDto>.SuccessResponse(result));
     }
 
+    // API ENDPOINT: GET /api/timelog/user
+    // CALLED FROM FRONTEND: getUserTimeLogs() function
+    // PURPOSE: Gets all time logs for the current user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("user")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TimeLogResponseDto>>>> GetUserTimeLogs(
         [FromQuery] DateTime? startDate,
@@ -125,6 +147,10 @@ public class TimeLogController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<TimeLogResponseDto>>.SuccessResponse(result));
     }
 
+    // API ENDPOINT: POST /api/timelog/{logId}/approve
+    // CALLED FROM FRONTEND: approveTimeLog() function
+    // PURPOSE: Approves a time log (manager/admin only).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpPost("{logId}/approve")]
     public async Task<ActionResult<ApiResponseDto<bool>>> ApproveTimeLog(Guid logId)
@@ -134,6 +160,10 @@ public class TimeLogController : ControllerBase
         return Ok(ApiResponseDto<bool>.SuccessResponse(result, "Time log approved successfully"));
     }
 
+    // API ENDPOINT: GET /api/timelog/total-hours
+    // CALLED FROM FRONTEND: getTotalHours() function
+    // PURPOSE: Gets total hours logged by the user in a date range.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("total-hours")]
     public async Task<ActionResult<ApiResponseDto<decimal>>> GetTotalHours(
         [FromQuery] DateTime startDate,
@@ -144,6 +174,10 @@ public class TimeLogController : ControllerBase
         return Ok(ApiResponseDto<decimal>.SuccessResponse(result));
     }
 
+    // API ENDPOINT: GET /api/timelog/team/{managerId}
+    // CALLED FROM FRONTEND: getTeamTimeLogs() function
+    // PURPOSE: Gets all time logs for a manager's team.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("team/{managerId}")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<DTOs.TimeLog.TeamTimeLogDto>>>> GetTeamTimeLogs(Guid managerId)
@@ -156,6 +190,10 @@ public class TimeLogController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<DTOs.TimeLog.TeamTimeLogDto>>.SuccessResponse(logs));
     }
 
+    // API ENDPOINT: GET /api/timelog/{timeLogId}/breaks
+    // CALLED FROM FRONTEND: getBreaksForTimeLog() function
+    // PURPOSE: Gets all breaks for a specific time log.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("{timeLogId}/breaks")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<DTOs.Break.BreakResponseDto>>>> GetBreaksForTimeLog(Guid timeLogId)
     {

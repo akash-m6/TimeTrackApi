@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 
 namespace TimeTrack.API.DTOs.TimeLog;
 
+// DTO: CreateTimeLogDto
+// PURPOSE: Transfers create time log data from frontend to backend.
 public class CreateTimeLogDto
 {
     [Required]

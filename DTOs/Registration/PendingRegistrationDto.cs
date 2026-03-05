@@ -1,5 +1,11 @@
 namespace TimeTrack.API.DTOs.Registration;
 
+// DTO: PendingRegistrationDto
+// PURPOSE: Transfers pending registration data between backend and frontend.
+// DTO: PendingRegistrationDto
+// PURPOSE: Transfers pending registration data between backend and frontend.
+// DTO: PendingRegistrationDto
+// PURPOSE: Transfers pending registration data between backend and frontend.
 public class PendingRegistrationDto
 {
     public Guid RegistrationId { get; set; }

@@ -1,8 +1,14 @@
 using TimeTrack.API.DTOs.Registration;
 using TimeTrack.API.Models;
 
-namespace TimeTrack.API.Service;
+namespace TimeTrack.API.Service.ServiceInterface;
 
+// SERVICE INTERFACE: IRegistrationService
+// PURPOSE: Defines contract for registration-related business logic.
+// SERVICE INTERFACE: IRegistrationService
+// PURPOSE: Defines contract for registration-related business logic.
+// SERVICE INTERFACE: IRegistrationService
+// PURPOSE: Defines contract for registration-related business logic.
 public interface IRegistrationService
 {
     Task<PendingRegistration> ApplyForRegistrationAsync(RegistrationApplicationDto dto);

@@ -5,12 +5,16 @@ using TimeTrack.API.Repository.IRepository;
 
 namespace TimeTrack.API.Repository;
 
+// REPOSITORY: BreakRepository
+// PURPOSE: Handles database operations for Break entities.
 public class BreakRepository : GenericRepository<Break>, IBreakRepository
 {
     public BreakRepository(TimeTrackDbContext context) : base(context)
     {
     }
 
+    // METHOD: GetBreaksByTimeLogIdAsync
+    // PURPOSE: Retrieves all breaks for a specific time log.
     public async Task<IEnumerable<Break>> GetBreaksByTimeLogIdAsync(Guid timeLogId)
     {
         return await _dbSet
@@ -19,6 +23,8 @@ public class BreakRepository : GenericRepository<Break>, IBreakRepository
             .ToListAsync();
     }
 
+    // METHOD: GetActiveBreakForTimeLogAsync
+    // PURPOSE: Retrieves the active break for a specific time log.
     public async Task<Break?> GetActiveBreakForTimeLogAsync(Guid timeLogId)
     {
         return await _dbSet
@@ -27,6 +33,8 @@ public class BreakRepository : GenericRepository<Break>, IBreakRepository
             .FirstOrDefaultAsync();
     }
 
+    // METHOD: GetActiveBreakForUserAsync
+    // PURPOSE: Retrieves the active break for a specific user.
     public async Task<Break?> GetActiveBreakForUserAsync(Guid userId)
     {
         return await _dbSet

@@ -1,6 +1,6 @@
 using TimeTrack.API.DTOs.Task;
 
-namespace TimeTrack.API.Service;
+namespace TimeTrack.API.Service.ServiceInterface;
 
 public interface ITaskManagementService
 {

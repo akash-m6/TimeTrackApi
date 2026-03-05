@@ -4,6 +4,8 @@ using TimeTrack.API.Repository.IRepository;
 
 namespace TimeTrack.API.Repository;
 
+// REPOSITORY: UnitOfWork
+// PURPOSE: Coordinates database operations and transactions across repositories.
 public class UnitOfWork : IUnitOfWork
 {
     private readonly TimeTrackDbContext _context;
@@ -31,16 +33,22 @@ public class UnitOfWork : IUnitOfWork
         Breaks = new BreakRepository(_context);
     }
 
+    // METHOD: SaveChangesAsync
+    // PURPOSE: Saves all changes to the database.
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();
     }
 
+    // METHOD: BeginTransactionAsync
+    // PURPOSE: Begins a new database transaction.
     public async Task BeginTransactionAsync()
     {
         _transaction = await _context.Database.BeginTransactionAsync();
     }
 
+    // METHOD: CommitTransactionAsync
+    // PURPOSE: Commits the current database transaction.
     public async Task CommitTransactionAsync()
     {
         try
@@ -60,6 +68,8 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
+    // METHOD: RollbackTransactionAsync
+    // PURPOSE: Rolls back the current database transaction.
     public async Task RollbackTransactionAsync()
     {
         if (_transaction != null)
@@ -70,6 +80,8 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
+    // METHOD: Dispose
+    // PURPOSE: Disposes the database context and transaction.
     public void Dispose()
     {
         _transaction?.Dispose();

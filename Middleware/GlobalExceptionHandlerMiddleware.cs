@@ -4,6 +4,8 @@ using TimeTrack.API.DTOs.Common;
 
 namespace TimeTrack.API.Middleware;
 
+// MIDDLEWARE: GlobalExceptionHandlerMiddleware
+// PURPOSE: Handles unhandled exceptions and returns standardized error responses.
 public class GlobalExceptionHandlerMiddleware
 {
     private readonly RequestDelegate _next;
@@ -15,6 +17,8 @@ public class GlobalExceptionHandlerMiddleware
         _logger = logger;
     }
 
+    // METHOD: InvokeAsync
+    // PURPOSE: Invokes the next middleware and handles exceptions.
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -28,6 +32,8 @@ public class GlobalExceptionHandlerMiddleware
         }
     }
 
+    // METHOD: HandleExceptionAsync
+    // PURPOSE: Handles exceptions and writes error response to HTTP context.
     private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
@@ -71,6 +77,8 @@ public class GlobalExceptionHandlerMiddleware
         await context.Response.WriteAsync(jsonResponse);
     }
 
+    // METHOD: CreateErrorResponse
+    // PURPOSE: Creates a standardized error response DTO.
     private static (HttpStatusCode StatusCode, ApiResponseDto<object> ErrorResponse) CreateErrorResponse(
         HttpStatusCode statusCode,
         string message,

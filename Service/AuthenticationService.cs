@@ -6,9 +6,12 @@ using System.Text;
 using TimeTrack.API.DTOs.Auth;
 using TimeTrack.API.Models;
 using TimeTrack.API.Repository.IRepository;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Service;
 
+// SERVICE: AuthenticationService
+// PURPOSE: Handles authentication, login, registration, and JWT token generation.
 public class AuthenticationService : IAuthenticationService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -20,6 +23,8 @@ public class AuthenticationService : IAuthenticationService
         _configuration = configuration;
     }
 
+    // METHOD: LoginAsync
+    // PURPOSE: Authenticates user and returns login response with JWT token.
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
     {
         var user = await _unitOfWork.Users.GetByEmailAsync(request.Email);
@@ -53,6 +58,8 @@ public class AuthenticationService : IAuthenticationService
         };
     }
 
+    // METHOD: RegisterAsync
+    // PURPOSE: Registers a new user and returns login response with JWT token.
     public async Task<LoginResponseDto> RegisterAsync(RegisterRequestDto request)
     {
         // Check if user exists
@@ -107,6 +114,8 @@ public class AuthenticationService : IAuthenticationService
         };
     }
 
+    // METHOD: ValidateTokenAsync
+    // PURPOSE: Validates a JWT token for authentication.
     public async Task<bool> ValidateTokenAsync(string token)
     {
         if (string.IsNullOrEmpty(token))
@@ -136,6 +145,8 @@ public class AuthenticationService : IAuthenticationService
         }
     }
 
+    // METHOD: GenerateJwtToken
+    // PURPOSE: Generates a JWT token for a user.
     public string GenerateJwtToken(Guid userId, string email, string role)
     {
         var tokenHandler = new JwtSecurityTokenHandler();

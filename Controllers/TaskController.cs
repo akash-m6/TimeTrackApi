@@ -4,10 +4,12 @@ using System.Security.Claims;
 using TimeTrack.API.DTOs;
 using TimeTrack.API.DTOs.Common;
 using TimeTrack.API.DTOs.Task;
-using TimeTrack.API.Service;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Controllers;
 
+// CONTROLLER: TaskController
+// PURPOSE: Handles all task-related API requests from frontend.
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
@@ -20,9 +22,11 @@ public class TaskController : ControllerBase
         _taskService = taskService;
     }
 
-    /// <summary>
-    /// Creates a new task and assigns it to an employee
-    /// </summary>
+
+    // API ENDPOINT: POST /api/task
+    // CALLED FROM FRONTEND: createTask() function
+    // PURPOSE: Creates a new task and assigns it to an employee.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> CreateTask([FromBody] CreateTaskDto dto)
@@ -33,9 +37,11 @@ public class TaskController : ControllerBase
             ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task created and assigned successfully"));
     }
 
-    /// <summary>
-    /// Updates task details (managers/admins only)
-    /// </summary>
+
+    // API ENDPOINT: PUT /api/task/{id}
+    // CALLED FROM FRONTEND: updateTask() function
+    // PURPOSE: Updates task details.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpPut("{id}")]
     public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> UpdateTask([FromRoute] Guid id, [FromBody] CreateTaskDto dto)
@@ -44,9 +50,11 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task updated successfully"));
     }
 
-    /// <summary>
-    /// Deletes a task (managers/admins only, cannot delete completed tasks)
-    /// </summary>
+
+    // API ENDPOINT: DELETE /api/task/{id}
+    // CALLED FROM FRONTEND: deleteTask() function
+    // PURPOSE: Deletes a task (cannot delete completed tasks).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTask([FromRoute] Guid id)
@@ -57,9 +65,11 @@ public class TaskController : ControllerBase
         return NoContent();
     }
 
-    /// <summary>
-    /// Retrieves task details by ID
-    /// </summary>
+
+    // API ENDPOINT: GET /api/task/{taskId}
+    // CALLED FROM FRONTEND: getTaskById() function
+    // PURPOSE: Retrieves task details by ID.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("{taskId}")]
     public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> GetTaskById(Guid taskId)
     {
@@ -67,9 +77,10 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result));
     }
 
-    /// <summary>
-    /// Gets all tasks assigned to the current user
-    /// </summary>
+    // API ENDPOINT: GET /api/task/my-tasks
+    // CALLED FROM FRONTEND: getMyTasks() function
+    // PURPOSE: Gets all tasks assigned to the current user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("my-tasks")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TaskResponseDto>>>> GetMyTasks()
     {
@@ -78,9 +89,11 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<TaskResponseDto>>.SuccessResponse(result));
     }
 
-    /// <summary>
-    /// Gets all tasks created by the current user (manager view)
-    /// </summary>
+
+    // API ENDPOINT: GET /api/task/created-by-me
+    // CALLED FROM FRONTEND: getCreatedTasks() function
+    // PURPOSE: Gets all tasks created by the current user (manager view).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("created-by-me")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TaskResponseDto>>>> GetCreatedTasks()
@@ -90,9 +103,11 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<TaskResponseDto>>.SuccessResponse(result));
     }
 
-    /// <summary>
-    /// START a task - Changes status from Pending to InProgress
-    /// </summary>
+
+    // API ENDPOINT: PATCH /api/task/{taskId}/start
+    // CALLED FROM FRONTEND: startTask() function
+    // PURPOSE: Starts a task (changes status from Pending to InProgress).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpPatch("{taskId}/start")]
     public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> StartTask(Guid taskId)
     {
@@ -101,9 +116,11 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task started successfully"));
     }
 
-    /// <summary>
-    /// COMPLETE a task - Changes status from InProgress to Completed (pending approval)
-    /// </summary>
+
+    // API ENDPOINT: PATCH /api/task/{taskId}/complete
+    // CALLED FROM FRONTEND: completeTask() function
+    // PURPOSE: Completes a task (changes status from InProgress to Completed).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpPatch("{taskId}/complete")]
     public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> CompleteTask(Guid taskId)
     {
@@ -112,9 +129,11 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task completed. Awaiting manager approval."));
     }
 
-    /// <summary>
-    /// APPROVE a completed task (Manager/Admin only)
-    /// </summary>
+  
+    // API ENDPOINT: PATCH /api/task/{taskId}/approve
+    // CALLED FROM FRONTEND: approveTask() function
+    // PURPOSE: Approves a completed task (Manager/Admin only).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpPatch("{taskId}/approve")]
     public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> ApproveTask(Guid taskId)
@@ -124,9 +143,11 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task approved successfully"));
     }
 
-    /// <summary>
-    /// REJECT a completed task and send back to InProgress (Manager/Admin only)
-    /// </summary>
+ 
+    // API ENDPOINT: PATCH /api/task/{taskId}/reject
+    // CALLED FROM FRONTEND: rejectTask() function
+    // PURPOSE: Rejects a completed task and sends back to InProgress (Manager/Admin only).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpPatch("{taskId}/reject")]
     public async Task<ActionResult<ApiResponseDto<TaskResponseDto>>> RejectTask(Guid taskId, [FromBody] RejectTaskRequest request)
@@ -136,9 +157,11 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<TaskResponseDto>.SuccessResponse(result, "Task rejected and sent back to employee"));
     }
 
-    /// <summary>
-    /// Gets tasks pending approval (Manager/Admin only)
-    /// </summary>
+
+    // API ENDPOINT: GET /api/task/pending-approval
+    // CALLED FROM FRONTEND: getTasksPendingApproval() function
+    // PURPOSE: Gets tasks pending approval (Manager/Admin only).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("pending-approval")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TaskResponseDto>>>> GetTasksPendingApproval()
@@ -148,9 +171,11 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<TaskResponseDto>>.SuccessResponse(result));
     }
 
-    /// <summary>
-    /// Logs time spent on a specific task by the assigned employee
-    /// </summary>
+
+    // API ENDPOINT: POST /api/task/log-time
+    // CALLED FROM FRONTEND: logTaskTime() function
+    // PURPOSE: Logs time spent on a specific task by the assigned employee.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpPost("log-time")]
     public async Task<ActionResult<ApiResponseDto<bool>>> LogTaskTime([FromBody] LogTaskTimeDto dto)
     {
@@ -159,9 +184,11 @@ public class TaskController : ControllerBase
         return Ok(ApiResponseDto<bool>.SuccessResponse(result, "Task time logged successfully"));
     }
 
-    /// <summary>
-    /// Gets all overdue tasks for managers to track
-    /// </summary>
+  
+    // API ENDPOINT: GET /api/task/overdue
+    // CALLED FROM FRONTEND: getOverdueTasks() function
+    // PURPOSE: Gets all overdue tasks for managers to track.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("overdue")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TaskResponseDto>>>> GetOverdueTasks()
@@ -172,9 +199,11 @@ public class TaskController : ControllerBase
 
     // ==================== ORGANIZATION ANALYTICS ENDPOINTS ====================
 
-    /// <summary>
-    /// Gets all tasks with details for organization analytics (Admin only)
-    /// </summary>
+ 
+    // API ENDPOINT: GET /api/task/all
+    // CALLED FROM FRONTEND: getAllTasks() function
+    // PURPOSE: Gets all tasks with details for organization analytics (Admin only).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "AdminOnly")]
     [HttpGet("all")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TaskResponseDto>>>> GetAllTasks(

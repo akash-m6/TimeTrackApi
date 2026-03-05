@@ -8,6 +8,8 @@ using TimeTrack.API.Repository.IRepository;
 
 namespace TimeTrack.API.Controllers;
 
+// CONTROLLER: UserController
+// PURPOSE: Handles all user-related API requests from frontend.
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
@@ -20,9 +22,11 @@ public class UserController : ControllerBase
         _unitOfWork = unitOfWork;
     }
 
-    /// <summary>
-    /// Gets current user profile information
-    /// </summary>
+  
+    // API ENDPOINT: GET /api/user/profile
+    // CALLED FROM FRONTEND: getProfile() function
+    // PURPOSE: Gets current user profile information.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [HttpGet("profile")]
     public async Task<ActionResult<ApiResponseDto<UserDto>>> GetProfile()
     {
@@ -35,9 +39,11 @@ public class UserController : ControllerBase
         return Ok(ApiResponseDto<UserDto>.SuccessResponse(MapToDto(user)));
     }
 
-    /// <summary>
-    /// Gets all active users in the system (managers/admins only)
-    /// </summary>
+
+    // API ENDPOINT: GET /api/user/all
+    // CALLED FROM FRONTEND: getAllUsers() function
+    // PURPOSE: Gets all active users in the system.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("all")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<UserDto>>>> GetAllUsers()
@@ -46,9 +52,11 @@ public class UserController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<UserDto>>.SuccessResponse(users.Select(MapToDto)));
     }
 
-    /// <summary>
-    /// Gets a user by their ID (managers/admins only)
-    /// </summary>
+ 
+    // API ENDPOINT: GET /api/user/{userId}
+    // CALLED FROM FRONTEND: getUserById() function
+    // PURPOSE: Gets a user by their ID.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("{userId}")]
     public async Task<ActionResult<ApiResponseDto<UserDto>>> GetUserById(Guid userId)
@@ -60,9 +68,11 @@ public class UserController : ControllerBase
         return Ok(ApiResponseDto<UserDto>.SuccessResponse(MapToDto(user)));
     }
 
-    /// <summary>
-    /// Updates a user (admins only)
-    /// </summary>
+
+    // API ENDPOINT: PUT /api/user/{userId}
+    // CALLED FROM FRONTEND: updateUser() function
+    // PURPOSE: Updates a user.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "AdminOnly")]
     [HttpPut("{userId}")]
     public async Task<ActionResult<ApiResponseDto<UserDto>>> UpdateUser(Guid userId, [FromBody] UserUpdateDto dto)
@@ -130,9 +140,10 @@ public class UserController : ControllerBase
         return Ok(ApiResponseDto<UserDto>.SuccessResponse(MapToDto(user!), "User updated"));
     }
 
-    /// <summary>
-    /// Gets all users in a specific department (managers/admins only)
-    /// </summary>
+    // API ENDPOINT: GET /api/user/department/{department}
+    // CALLED FROM FRONTEND: getUsersByDepartment() function
+    // PURPOSE: Gets all users in a specific department.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("department/{department}")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<UserDto>>>> GetUsersByDepartment(string department)
@@ -141,9 +152,11 @@ public class UserController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<UserDto>>.SuccessResponse(users.Select(MapToDto)));
     }
 
-    /// <summary>
-    /// Gets all employees under a specific manager (managers/admins only)
-    /// </summary>
+
+    // API ENDPOINT: GET /api/user/{managerId}/employees
+    // CALLED FROM FRONTEND: getEmployeesByManager() function
+    // PURPOSE: Gets all employees under a specific manager.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("{managerId}/employees")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<UserDto>>>> GetEmployeesByManager(Guid managerId)
@@ -152,9 +165,11 @@ public class UserController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<UserDto>>.SuccessResponse(employees.Select(MapToDto)));
     }
 
-    /// <summary>
-    /// Gets all team members under the logged-in manager
-    /// </summary>
+
+    // API ENDPOINT: GET /api/user/my-team
+    // CALLED FROM FRONTEND: getMyTeam() function
+    // PURPOSE: Gets all team members under the logged-in manager.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("my-team")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<TeamMemberDto>>>> GetMyTeam()
@@ -171,9 +186,11 @@ public class UserController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<TeamMemberDto>>.SuccessResponse(teamMembers));
     }
 
-    /// <summary>
-    /// Manager dashboard stats
-    /// </summary>
+
+    // API ENDPOINT: GET /api/user/manager-dashboard/{managerId}
+    // CALLED FROM FRONTEND: getManagerDashboard() function
+    // PURPOSE: Gets manager dashboard stats.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("manager-dashboard/{managerId}")]
     public async Task<IActionResult> GetManagerDashboard(Guid managerId)
@@ -211,9 +228,11 @@ public class UserController : ControllerBase
         return Ok(new { success = true, data = payload });
     }
 
-    /// <summary>
-    /// Deactivates a user account (admins only)
-    /// </summary>
+
+    // API ENDPOINT: PATCH /api/user/{userId}/deactivate
+    // CALLED FROM FRONTEND: deactivateUser() function
+    // PURPOSE: Deactivates a user account.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "AdminOnly")]
     [HttpPatch("{userId}/deactivate")]
     public async Task<ActionResult<ApiResponseDto<bool>>> DeactivateUser(Guid userId)
@@ -229,9 +248,11 @@ public class UserController : ControllerBase
         return Ok(ApiResponseDto<bool>.SuccessResponse(true, "User deactivated"));
     }
 
-    /// <summary>
-    /// Reactivates a user account (admins only)
-    /// </summary>
+
+    // API ENDPOINT: PATCH /api/user/{userId}/activate
+    // CALLED FROM FRONTEND: activateUser() function
+    // PURPOSE: Reactivates a user account.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "AdminOnly")]
     [HttpPatch("{userId}/activate")]
     public async Task<ActionResult<ApiResponseDto<bool>>> ActivateUser(Guid userId)
@@ -249,9 +270,11 @@ public class UserController : ControllerBase
 
     // ==================== ORGANIZATION ANALYTICS ENDPOINTS ====================
 
-    /// <summary>
-    /// Gets list of currently active/punched-in employees (Admin or Manager)
-    /// </summary>
+
+    // API ENDPOINT: GET /api/user/active
+    // CALLED FROM FRONTEND: getActiveUsers() function
+    // PURPOSE: Gets list of currently active/punched-in employees.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("active")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<UserInfoDto>>>> GetActiveUsers()
@@ -272,11 +295,11 @@ public class UserController : ControllerBase
         return Ok(ApiResponseDto<IEnumerable<UserInfoDto>>.SuccessResponse(userInfos));
     }
 
-    /// <summary>
-    /// Gets users filtered by role (Admin only)
-    /// </summary>
-    /// <param name="role">Role to filter by (Employee, Manager, or Admin)</param>
-    /// <param name="isActive">Optional filter by active status</param>
+  
+    // API ENDPOINT: GET /api/user/by-role/{role}
+    // CALLED FROM FRONTEND: getUsersByRole() function
+    // PURPOSE: Gets users filtered by role.
+    // FLOW: Controller → Repository → Database → Response to Frontend
     [Authorize(Policy = "AdminOnly")]
     [HttpGet("by-role/{role}")]
     public async Task<ActionResult<ApiResponseDto<IEnumerable<UserInfoDto>>>> GetUsersByRole(

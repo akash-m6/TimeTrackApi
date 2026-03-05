@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,6 +10,8 @@ using TimeTrack.API.Service;
 
 namespace TimeTrack.API.Controllers;
 
+// CONTROLLER: ProductivityController
+// PURPOSE: Handles all productivity-related API requests from frontend.
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
@@ -24,9 +26,11 @@ public class ProductivityController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Generates productivity report for the current user
-    /// </summary>
+
+    // API ENDPOINT: GET /api/productivity/my-report
+    // CALLED FROM FRONTEND: getMyProductivityReport() function
+    // PURPOSE: Generates productivity report for the current user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("my-report")]
     public async Task<ActionResult<ApiResponseDto<ProductivityReportDto>>> GetMyProductivityReport(
         [FromQuery] DateTime startDate,
@@ -37,9 +41,11 @@ public class ProductivityController : ControllerBase
         return Ok(ApiResponseDto<ProductivityReportDto>.SuccessResponse(report));
     }
 
-    /// <summary>
-    /// Generates productivity report for a specific user (managers/admins only)
-    /// </summary>
+ 
+    // API ENDPOINT: GET /api/productivity/user/{userId}
+    // CALLED FROM FRONTEND: getUserProductivityReport() function
+    // PURPOSE: Generates productivity report for a specific user (managers/admins only).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("user/{userId}")]
     public async Task<ActionResult<ApiResponseDto<ProductivityReportDto>>> GetUserProductivityReport(
@@ -51,9 +57,11 @@ public class ProductivityController : ControllerBase
         return Ok(ApiResponseDto<ProductivityReportDto>.SuccessResponse(report));
     }
 
-    /// <summary>
-    /// Generates productivity report for an entire department (managers/admins only)
-    /// </summary>
+ 
+    // API ENDPOINT: GET /api/productivity/department/{department}
+    // CALLED FROM FRONTEND: getDepartmentProductivityReport() function
+    // PURPOSE: Generates productivity report for an entire department (managers/admins only).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "ManagerOrAdmin")]
     [HttpGet("department/{department}")]
     public async Task<ActionResult<ApiResponseDto<ProductivityReportDto>>> GetDepartmentProductivityReport(
@@ -65,10 +73,11 @@ public class ProductivityController : ControllerBase
         return Ok(ApiResponseDto<ProductivityReportDto>.SuccessResponse(report));
     }
 
-    /// <summary>
-    /// Calculates efficiency score for current user based on TimeTrack algorithm
-    /// Formula: (Task-focused Time � 0.6) + (Completion Rate � 0.4)
-    /// </summary>
+  
+    // API ENDPOINT: GET /api/productivity/my-efficiency
+    // CALLED FROM FRONTEND: getMyEfficiencyScore() function
+    // PURPOSE: Calculates efficiency score for current user based on TimeTrack algorithm.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("my-efficiency")]
     public async Task<ActionResult<ApiResponseDto<decimal>>> GetMyEfficiencyScore(
         [FromQuery] DateTime startDate,
@@ -79,9 +88,11 @@ public class ProductivityController : ControllerBase
         return Ok(ApiResponseDto<decimal>.SuccessResponse(score, "Efficiency score calculated"));
     }
 
-    /// <summary>
-    /// Calculates task completion rate percentage for current user
-    /// </summary>
+   
+    // API ENDPOINT: GET /api/productivity/my-completion-rate
+    // CALLED FROM FRONTEND: getMyCompletionRate() function
+    // PURPOSE: Calculates task completion rate percentage for current user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("my-completion-rate")]
     public async Task<ActionResult<ApiResponseDto<decimal>>> GetMyCompletionRate(
         [FromQuery] DateTime startDate,
@@ -92,6 +103,10 @@ public class ProductivityController : ControllerBase
         return Ok(ApiResponseDto<decimal>.SuccessResponse(rate, "Task completion rate calculated"));
     }
 
+    // API ENDPOINT: GET /api/productivity
+    // CALLED FROM FRONTEND: getProductivity() function
+    // PURPOSE: Gets productivity summary for the current user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet]
     public async Task<ActionResult<ApiResponseDto<ProductivityResponseDto>>> GetProductivity()
     {

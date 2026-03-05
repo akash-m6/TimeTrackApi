@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TimeTrack.API.Models
 {
+// MODEL: Notification
+// PURPOSE: Represents notification table structure in the database.
     public class Notification
     {
         [Key]

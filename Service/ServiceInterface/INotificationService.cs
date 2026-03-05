@@ -1,6 +1,6 @@
 using TimeTrack.API.Models;
 
-namespace TimeTrack.API.Service;
+namespace TimeTrack.API.Service.ServiceInterface;
 
 public interface INotificationService
 {

@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TimeTrack.API.DTOs.Task;
 
+// DTO: LogTaskTimeDto
+// PURPOSE: Transfers task time logging data from frontend to backend.
 public class LogTaskTimeDto
 {
     [Required]

@@ -1,9 +1,13 @@
 using TimeTrack.API.DTOs.Productivity;
 using TimeTrack.API.Repository.IRepository;
 using TimeTrack.API.Models;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Service;
 
+
+// SERVICE: ProductivityAnalyticsService
+// PURPOSE: Contains business logic for advanced productivity analytics and reporting.
 public class ProductivityAnalyticsService : IProductivityAnalyticsService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -13,6 +17,8 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
         _unitOfWork = unitOfWork;
     }
 
+    // METHOD: GenerateUserReportAsync
+    // PURPOSE: Generates detailed productivity report for a user.
     public async Task<ProductivityReportDto> GenerateUserReportAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
@@ -54,6 +60,8 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
         };
     }
 
+    // METHOD: GenerateDepartmentReportAsync
+    // PURPOSE: Generates productivity report for a department.
     public async Task<ProductivityReportDto> GenerateDepartmentReportAsync(string department, DateTime startDate, DateTime endDate)
     {
         var departmentUsers = await _unitOfWork.Users.GetUsersByDepartmentAsync(department);
@@ -105,6 +113,8 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
         };
     }
 
+    // METHOD: CalculateEfficiencyScoreAsync
+    // PURPOSE: Calculates efficiency score for a user.
     public async Task<decimal> CalculateEfficiencyScoreAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         var totalHoursLogged = await _unitOfWork.TimeLogs.GetTotalHoursByUserAsync(userId, startDate, endDate);
@@ -128,6 +138,8 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
         return Math.Min(100, Math.Round(efficiencyScore, 2));
     }
 
+    // METHOD: CalculateTaskCompletionRateAsync
+    // PURPOSE: Calculates task completion rate for a user.
     public async Task<decimal> CalculateTaskCompletionRateAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         var userTasks = await _unitOfWork.Tasks.GetTasksByAssignedUserAsync(userId);
@@ -142,6 +154,8 @@ public class ProductivityAnalyticsService : IProductivityAnalyticsService
         return Math.Round((decimal)completedCount / relevantTasks.Count * 100, 2);
     }
 
+    // METHOD: BuildDailyProductivityBreakdown
+    // PURPOSE: Builds daily productivity breakdown for reporting.
     private List<DailyProductivityDto> BuildDailyProductivityBreakdown(
         IEnumerable<TimeLog> timeLogs, 
         DateTime startDate, 

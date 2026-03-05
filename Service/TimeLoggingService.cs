@@ -1,9 +1,12 @@
 using TimeTrack.API.DTOs.TimeLog;
 using TimeTrack.API.Models;
 using TimeTrack.API.Repository.IRepository;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Service;
 
+// SERVICE: TimeLoggingService
+// PURPOSE: Contains business logic for time log operations.
 public class TimeLoggingService : ITimeLoggingService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -13,6 +16,8 @@ public class TimeLoggingService : ITimeLoggingService
         _unitOfWork = unitOfWork;
     }
 
+    // METHOD: CreateTimeLogAsync
+    // PURPOSE: Creates a new time log for the user.
     public async Task<TimeLogResponseDto> CreateTimeLogAsync(Guid userId, CreateTimeLogDto dto)
     {
         var existingLog = await _unitOfWork.TimeLogs.GetLogByUserAndDateAsync(userId, dto.Date);
@@ -38,6 +43,8 @@ public class TimeLoggingService : ITimeLoggingService
         return await MapToResponseDto(timeLog);
     }
 
+    // METHOD: UpdateTimeLogAsync
+    // PURPOSE: Updates an existing time log for the user.
     public async Task<TimeLogResponseDto> UpdateTimeLogAsync(Guid logId, Guid userId, CreateTimeLogDto dto)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(logId);
@@ -61,6 +68,8 @@ public class TimeLoggingService : ITimeLoggingService
         return await MapToResponseDto(timeLog);
     }
 
+    // METHOD: DeleteTimeLogAsync
+    // PURPOSE: Deletes a time log for the user.
     public async Task<bool> DeleteTimeLogAsync(Guid logId, Guid userId)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(logId);
@@ -77,6 +86,8 @@ public class TimeLoggingService : ITimeLoggingService
         return true;
     }
 
+    // METHOD: GetTimeLogByIdAsync
+    // PURPOSE: Retrieves a time log by its ID.
     public async Task<TimeLogResponseDto> GetTimeLogByIdAsync(Guid logId)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(logId);
@@ -87,6 +98,8 @@ public class TimeLoggingService : ITimeLoggingService
         return await MapToResponseDto(timeLog);
     }
 
+    // METHOD: GetUserTimeLogsAsync
+    // PURPOSE: Retrieves all time logs for the current user.
     public async Task<IEnumerable<TimeLogResponseDto>> GetUserTimeLogsAsync(Guid userId, DateTime? startDate, DateTime? endDate)
     {
         IEnumerable<TimeLog> logs;
@@ -114,6 +127,8 @@ public class TimeLoggingService : ITimeLoggingService
         });
     }
 
+    // METHOD: GetDepartmentTimeLogsAsync
+    // PURPOSE: Retrieves all time logs for a department in a date range.
     public async Task<IEnumerable<TimeLogResponseDto>> GetDepartmentTimeLogsAsync(string department, DateTime startDate, DateTime endDate)
     {
         var logs = await _unitOfWork.TimeLogs.GetLogsByDepartmentAsync(department, startDate, endDate);
@@ -132,6 +147,8 @@ public class TimeLoggingService : ITimeLoggingService
         });
     }
 
+    // METHOD: ApproveTimeLogAsync
+    // PURPOSE: Approves a time log (manager/admin only).
     public async Task<bool> ApproveTimeLogAsync(Guid logId, Guid managerId)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(logId);
@@ -144,11 +161,15 @@ public class TimeLoggingService : ITimeLoggingService
         return true;
     }
 
+    // METHOD: CalculateTotalHoursAsync
+    // PURPOSE: Calculates total hours logged by the user in a date range.
     public async Task<decimal> CalculateTotalHoursAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         return await _unitOfWork.TimeLogs.GetTotalHoursByUserAsync(userId, startDate, endDate);
     }
 
+    // METHOD: GetTeamTimeLogsByManagerIdAsync
+    // PURPOSE: Retrieves all time logs for a manager's team.
     public async Task<IEnumerable<TeamTimeLogDto>> GetTeamTimeLogsByManagerIdAsync(Guid managerId)
     {
         var employees = await _unitOfWork.Users.GetEmployeesByManagerIdAsync(managerId);
@@ -185,6 +206,8 @@ public class TimeLoggingService : ITimeLoggingService
         return result.OrderByDescending(t => t.Date).ThenByDescending(t => t.StartTime);
     }
 
+    // METHOD: DetermineLogStatus
+    // PURPOSE: Determines the status of a time log.
     private string DetermineLogStatus(TimeLog log)
     {
         if (log.EndTime == TimeSpan.Zero || log.TotalHours == 0)
@@ -193,11 +216,15 @@ public class TimeLoggingService : ITimeLoggingService
         return "Completed";
     }
 
+    // METHOD: GetTotalHoursByUsersForDateAsync
+    // PURPOSE: Returns total hours logged by a list of users for a specific date.
     public async Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<Guid> userIds, DateTime date)
     {
         return await _unitOfWork.TimeLogs.GetTotalHoursByUsersForDateAsync(userIds, date);
     }
 
+    // METHOD: MapToResponseDto
+    // PURPOSE: Maps TimeLog entity to TimeLogResponseDto.
     private async Task<TimeLogResponseDto> MapToResponseDto(TimeLog timeLog)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(timeLog.UserId);
@@ -217,6 +244,8 @@ public class TimeLoggingService : ITimeLoggingService
     }
 
     // Organization Analytics Methods
+    // METHOD: GetAllTimeLogsWithDetailsAsync
+    // PURPOSE: Retrieves all time logs with details for analytics.
     public async Task<IEnumerable<TimeLogResponseDto>> GetAllTimeLogsWithDetailsAsync(
         DateTime? startDate, 
         DateTime? endDate, 

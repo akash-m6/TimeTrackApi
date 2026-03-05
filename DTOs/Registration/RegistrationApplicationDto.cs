@@ -2,6 +2,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TimeTrack.API.DTOs.Registration;
 
+// DTO: RegistrationApplicationDto
+// PURPOSE: Transfers registration application data from frontend to backend.
+// DTO: RegistrationApplicationDto
+// PURPOSE: Transfers registration application data from frontend to backend.
+// DTO: RegistrationApplicationDto
+// PURPOSE: Transfers registration application data from frontend to backend.
 public class RegistrationApplicationDto
 {
     [Required]

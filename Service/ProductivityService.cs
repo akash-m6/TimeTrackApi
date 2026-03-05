@@ -9,6 +9,9 @@ using TimeTrack.API.DTOs.Productivity;
 
 namespace TimeTrack.API.Service
 {
+
+// SERVICE: ProductivityService
+// PURPOSE: Contains business logic for user productivity analytics and reporting.
     public class ProductivityService : IProductivityService
     {
         private readonly TimeTrackDbContext _db;
@@ -23,6 +26,9 @@ namespace TimeTrack.API.Service
             _logger = logger;
         }
 
+        
+        // METHOD: GetProductivityAsync
+        // PURPOSE: Calculates and returns productivity metrics for a user.
         public async Task<ProductivityResponseDto> GetProductivityAsync(Guid userId)
         {
             var cacheKey = $"productivity:{userId}";
@@ -111,21 +117,29 @@ namespace TimeTrack.API.Service
             }
         }
 
+        // METHOD: GenerateUserReportAsync
+        // PURPOSE: Generates productivity report for a specific user.
         public Task<ProductivityReportDto> GenerateUserReportAsync(Guid userId, DateTime startDate, DateTime endDate)
         {
             throw new NotImplementedException();
         }
 
+        // METHOD: GenerateDepartmentReportAsync
+        // PURPOSE: Generates productivity report for a department.
         public Task<ProductivityReportDto> GenerateDepartmentReportAsync(string department, DateTime startDate, DateTime endDate)
         {
             throw new NotImplementedException();
         }
 
+        // METHOD: CalculateEfficiencyScoreAsync
+        // PURPOSE: Calculates efficiency score for a user.
         public Task<decimal> CalculateEfficiencyScoreAsync(Guid userId, DateTime startDate, DateTime endDate)
         {
             throw new NotImplementedException();
         }
 
+        // METHOD: CalculateTaskCompletionRateAsync
+        // PURPOSE: Calculates task completion rate for a user.
         public Task<decimal> CalculateTaskCompletionRateAsync(Guid userId, DateTime startDate, DateTime endDate)
         {
             throw new NotImplementedException();

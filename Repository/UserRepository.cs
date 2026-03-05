@@ -111,6 +111,8 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     }
 
     // Organization Analytics Methods
+    // METHOD: GetUsersByRoleAsync
+    // PURPOSE: Retrieves users by role.
     public async Task<IEnumerable<User>> GetUsersByRoleAsync(string role)
     {
         return await _dbSet
@@ -118,12 +120,16 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             .ToListAsync();
     }
 
+    // METHOD: GetUserCountByRoleAsync
+    // PURPOSE: Returns count of users by role.
     public async Task<int> GetUserCountByRoleAsync(string role)
     {
         return await _dbSet
             .CountAsync(u => u.Role == role && u.Status == "Active");
     }
 
+    // METHOD: GetPunchedInUsersAsync
+    // PURPOSE: Retrieves all currently active/punched-in users.
     public async Task<IEnumerable<User>> GetPunchedInUsersAsync()
     {
         return await _dbSet
@@ -132,6 +138,8 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             .ToListAsync();
     }
 
+    // METHOD: GetAllDepartmentsAsync
+    // PURPOSE: Retrieves all distinct departments.
     public async Task<List<string>> GetAllDepartmentsAsync()
     {
         return await _dbSet
@@ -144,5 +152,4 @@ public class UserRepository : GenericRepository<User>, IUserRepository
 
 }
 
-// Manager-Employee Self-Referencing Relationship
 

@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TimeTrack.API.Models;
 
+
+// MODEL: Break
+// PURPOSE: Represents break table structure in the database.
 [Table("Breaks")]
 public class Break
 {

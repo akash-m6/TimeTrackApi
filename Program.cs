@@ -8,8 +8,14 @@ using TimeTrack.API.Repository.IRepository;
 using TimeTrack.API.Repository;
 using TimeTrack.API.Service;
 using TimeTrack.API.Middleware;
+using TimeTrack.API.Service.ServiceInterface;
+
+// ENTRY POINT: Program.cs
+// PURPOSE: Configures and starts the TimeTrack API backend application.
 
 var builder = WebApplication.CreateBuilder(args);
+
+// CONFIGURATION: Database, Dependency Injection, Authentication, Authorization, CORS, Swagger
 
 // Database Configuration with resiliency
 builder.Services.AddDbContext<TimeTrackDbContext>(options =>
@@ -26,7 +32,7 @@ builder.Services.AddDbContext<TimeTrackDbContext>(options =>
     });
 });
 
-// Repositories
+// REPOSITORY REGISTRATION: Registers all repository interfaces and implementations for DI.
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITimeLogRepository, TimeLogRepository>();
@@ -36,7 +42,7 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IPendingRegistrationRepository, PendingRegistrationRepository>();
 builder.Services.AddScoped<IBreakRepository, BreakRepository>();
 
-// Services
+// SERVICE REGISTRATION: Registers all service interfaces and implementations for DI.
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITimeLoggingService, TimeLoggingService>();
 builder.Services.AddScoped<ITaskManagementService, TaskManagementService>();
@@ -50,8 +56,7 @@ builder.Services.AddScoped<IProductivityService, ProductivityService>();
 // Memory cache for caching productivity per-user
 builder.Services.AddMemoryCache();
 
-
-// JWT
+// AUTHENTICATION: Configures JWT authentication and token validation.
 var jwtKey = builder.Configuration["JwtSettings:SecretKey"];
 if (string.IsNullOrEmpty(jwtKey))
 {
@@ -81,6 +86,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// AUTHORIZATION: Adds role-based authorization policies.
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("EmployeeOnly", policy => policy.RequireRole("Employee"));
@@ -89,7 +95,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ManagerOrAdmin", policy => policy.RequireRole("Manager", "Admin"));
 });
 
+// CONTROLLERS: Adds MVC controllers to the application.
 builder.Services.AddControllers();
+
+// SWAGGER: Configures Swagger/OpenAPI for API documentation.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -125,6 +134,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// CORS: Configures Cross-Origin Resource Sharing for frontend integration.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -136,11 +146,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-
 var app = builder.Build();
 
-// Apply migrations & seed within execution strategy
+// APPLICATION PIPELINE: Builds and configures the HTTP request pipeline.
+
+// DATABASE MIGRATION & SEEDING: Applies migrations and seeds the database on startup.
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -203,18 +213,31 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// DEVELOPMENT: Enables Swagger UI in development environment.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// MIDDLEWARE: Adds global exception handler middleware.
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
+// SECURITY: Enforces HTTPS redirection.
 app.UseHttpsRedirection();
+
+// CORS: Enables CORS policy for frontend.
 app.UseCors("AllowFrontend");
+
+// AUTHENTICATION: Enables JWT authentication middleware.
 app.UseAuthentication();
+
+// AUTHORIZATION: Enables authorization middleware.
 app.UseAuthorization();
+
+// ROUTING: Maps controller endpoints.
 app.MapControllers();
 
+// RUN: Starts the web application.
 app.Run();
 

@@ -3,6 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace TimeTrack.API.DTOs.Break;
 
+// DTO: EndBreakDto
+// PURPOSE: Transfers end break data from frontend to backend.
 public class EndBreakDto
 {
     [Required]

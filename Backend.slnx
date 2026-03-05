@@ -1,4 +1,3 @@
 <Solution>
-  <Project Path="../TimeTrack.Tests/TimeTrack.Tests.csproj" Id="3d92b44d-cde3-453f-881c-5529657b1bd1" />
   <Project Path="TimeTrack.API.csproj" />
 </Solution>

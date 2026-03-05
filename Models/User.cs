@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TimeTrack.API.Models
 {
+
+// MODEL: User
+// PURPOSE: Represents user table structure in the database.
     public class User
     {
         [Key]

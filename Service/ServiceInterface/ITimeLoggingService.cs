@@ -1,6 +1,6 @@
 using TimeTrack.API.DTOs.TimeLog;
 
-namespace TimeTrack.API.Service;
+namespace TimeTrack.API.Service.ServiceInterface;
 
 public interface ITimeLoggingService
 {

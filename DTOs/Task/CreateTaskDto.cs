@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TimeTrack.API.DTOs.Task;
 
+// DTO: CreateTaskDto
+// PURPOSE: Transfers create task data from frontend to backend.
 public class CreateTaskDto
 {
     [Required]

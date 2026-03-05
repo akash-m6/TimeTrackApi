@@ -1,5 +1,7 @@
 namespace TimeTrack.API.DTOs.Task;
 
+// DTO: TaskResponseDto
+// PURPOSE: Transfers task response data between backend and frontend.
 public class TaskResponseDto
 {
     public Guid TaskId { get; set; }

@@ -1,9 +1,12 @@
 using TimeTrack.API.DTOs.Break;
 using TimeTrack.API.Models;
 using TimeTrack.API.Repository.IRepository;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Service;
 
+// SERVICE: BreakService
+// PURPOSE: Contains business logic for user break operations.
 public class BreakService : IBreakService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -13,6 +16,8 @@ public class BreakService : IBreakService
         _unitOfWork = unitOfWork;
     }
 
+    // METHOD: StartBreakAsync
+    // PURPOSE: Starts a new break for the user.
     public async Task<BreakResponseDto> StartBreakAsync(Guid userId, CreateBreakDto dto)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(dto.TimeLogId);
@@ -47,6 +52,8 @@ public class BreakService : IBreakService
         return MapToDto(breakEntity);
     }
 
+    // METHOD: EndBreakAsync
+    // PURPOSE: Ends an active break for the user.
     public async Task<BreakResponseDto> EndBreakAsync(Guid breakId, Guid userId, EndBreakDto dto)
     {
         var breakEntity = await _unitOfWork.Breaks.GetByIdAsync(breakId);
@@ -94,6 +101,8 @@ public class BreakService : IBreakService
         return MapToDto(breakEntity);
     }
 
+    // METHOD: GetBreaksForTimeLogAsync
+    // PURPOSE: Retrieves all breaks for a specific time log.
     public async Task<IEnumerable<BreakResponseDto>> GetBreaksForTimeLogAsync(Guid timeLogId, Guid userId)
     {
         var timeLog = await _unitOfWork.TimeLogs.GetByIdAsync(timeLogId);
@@ -109,6 +118,8 @@ public class BreakService : IBreakService
         return breaks.Select(MapToDto);
     }
 
+    // METHOD: GetActiveBreakForUserAsync
+    // PURPOSE: Retrieves the active break for a user.
     public async Task<BreakResponseDto?> GetActiveBreakForUserAsync(Guid userId)
     {
         var activeBreak = await _unitOfWork.Breaks.GetActiveBreakForUserAsync(userId);
@@ -119,6 +130,8 @@ public class BreakService : IBreakService
         return MapToDto(activeBreak);
     }
 
+    // METHOD: DeleteBreakAsync
+    // PURPOSE: Deletes a break for the user.
     public async Task<bool> DeleteBreakAsync(Guid breakId, Guid userId)
     {
         var breakEntity = await _unitOfWork.Breaks.GetByIdAsync(breakId);
@@ -147,6 +160,8 @@ public class BreakService : IBreakService
         return true;
     }
 
+    // METHOD: MapToDto
+    // PURPOSE: Maps Break entity to BreakResponseDto.
     private BreakResponseDto MapToDto(Break breakEntity)
     {
         return new BreakResponseDto

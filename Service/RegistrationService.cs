@@ -1,9 +1,13 @@
 using TimeTrack.API.DTOs.Registration;
 using TimeTrack.API.Models;
 using TimeTrack.API.Repository.IRepository;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Service;
 
+
+// SERVICE: RegistrationService
+// PURPOSE: Contains business logic for user registration and approval operations.
 public class RegistrationService : IRegistrationService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -13,6 +17,8 @@ public class RegistrationService : IRegistrationService
         _unitOfWork = unitOfWork;
     }
 
+    // METHOD: ApplyForRegistrationAsync
+    // PURPOSE: Handles new registration application, checks for duplicates, and saves pending registration.
     public async Task<PendingRegistration> ApplyForRegistrationAsync(RegistrationApplicationDto dto)
     {
         // Check if email already exists
@@ -45,32 +51,44 @@ public class RegistrationService : IRegistrationService
         return registration;
     }
 
+    // METHOD: GetAllRegistrationsAsync
+    // PURPOSE: Retrieves all pending registrations from repository.
     public async Task<IEnumerable<PendingRegistration>> GetAllRegistrationsAsync()
     {
         return await _unitOfWork.PendingRegistrations.GetAllAsync();
     }
 
+    // METHOD: GetPendingRegistrationsAsync
+    // PURPOSE: Retrieves all registrations with status 'Pending'.
     public async Task<IEnumerable<PendingRegistration>> GetPendingRegistrationsAsync()
     {
         return await _unitOfWork.PendingRegistrations.GetPendingAsync();
     }
 
+    // METHOD: GetApprovedRegistrationsAsync
+    // PURPOSE: Retrieves all registrations with status 'Approved'.
     public async Task<IEnumerable<PendingRegistration>> GetApprovedRegistrationsAsync()
     {
         return await _unitOfWork.PendingRegistrations.GetByStatusAsync("Approved");
     }
 
+    // METHOD: GetRejectedRegistrationsAsync
+    // PURPOSE: Retrieves all registrations with status 'Rejected'.
     public async Task<IEnumerable<PendingRegistration>> GetRejectedRegistrationsAsync()
     {
         return await _unitOfWork.PendingRegistrations.GetByStatusAsync("Rejected");
     }
 
+    // METHOD: GetPendingCountAsync
+    // PURPOSE: Returns count of registrations with status 'Pending'.
     public async Task<int> GetPendingCountAsync()
     {
         var pending = await _unitOfWork.PendingRegistrations.GetPendingAsync();
         return pending.Count();
     }
 
+    // METHOD: ApproveRegistrationAsync
+    // PURPOSE: Approves a pending registration and creates a user account.
     public async Task<bool> ApproveRegistrationAsync(Guid registrationId, Guid approverId)
     {
         var registration = await _unitOfWork.PendingRegistrations.GetByIdAsync(registrationId);
@@ -104,6 +122,8 @@ public class RegistrationService : IRegistrationService
         return true;
     }
 
+    // METHOD: RejectRegistrationAsync
+    // PURPOSE: Rejects a pending registration and records rejection reason.
     public async Task<bool> RejectRegistrationAsync(Guid registrationId, Guid rejectorId, string reason)
     {
         var registration = await _unitOfWork.PendingRegistrations.GetByIdAsync(registrationId);
@@ -123,6 +143,8 @@ public class RegistrationService : IRegistrationService
         return true;
     }
 
+    // METHOD: DeleteRegistrationAsync
+    // PURPOSE: Deletes a registration record from repository.
     public async Task<bool> DeleteRegistrationAsync(Guid registrationId)
     {
         var registration = await _unitOfWork.PendingRegistrations.GetByIdAsync(registrationId);
@@ -137,6 +159,8 @@ public class RegistrationService : IRegistrationService
         return true;
     }
 
+    // METHOD: SubmitRegistrationAsync
+    // PURPOSE: Validates and submits a new registration request, returns response DTO.
     public async Task<RegistrationResponseDto> SubmitRegistrationAsync(RegistrationRequestDto dto)
     {
         // 1) Basic validation

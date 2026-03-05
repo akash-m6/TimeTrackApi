@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TimeTrack.API.DTOs.Analytics;
 using TimeTrack.API.DTOs.Common;
-using TimeTrack.API.Service;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Controllers;
 
+// CONTROLLER: AnalyticsController
+// PURPOSE: Handles all analytics-related API requests from frontend.
 [Authorize(Policy = "ManagerOrAdmin")]
 [ApiController]
 [Route("api/[controller]")]
@@ -19,11 +21,11 @@ public class AnalyticsController : ControllerBase
         _analyticsService = analyticsService;
     }
 
-    /// <summary>
-    /// Gets team summary analytics for dashboard cards
-    /// </summary>
-    /// <param name="startDate">Optional start date (default: 30 days ago)</param>
-    /// <param name="endDate">Optional end date (default: today)</param>
+   
+    // API ENDPOINT: GET /api/analytics/team-summary
+    // CALLED FROM FRONTEND: getTeamSummary() function
+    // PURPOSE: Gets team summary analytics for dashboard cards.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("team-summary")]
     public async Task<ActionResult<ApiResponseDto<TeamSummaryDto>>> GetTeamSummary(
         [FromQuery] DateTime? startDate,
@@ -34,12 +36,12 @@ public class AnalyticsController : ControllerBase
         return Ok(ApiResponseDto<TeamSummaryDto>.SuccessResponse(result, "Team summary retrieved successfully"));
     }
 
-    /// <summary>
-    /// Gets team hours trend data for line chart
-    /// </summary>
-    /// <param name="startDate">Required start date</param>
-    /// <param name="endDate">Required end date</param>
-    /// <param name="groupBy">Optional grouping: "day" or "week" (default: "day")</param>
+    
+  
+    // API ENDPOINT: GET /api/analytics/team-hours-trend
+    // CALLED FROM FRONTEND: getTeamHoursTrend() function
+    // PURPOSE: Gets team hours trend data for line chart.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("team-hours-trend")]
     public async Task<ActionResult<ApiResponseDto<TeamHoursTrendDto>>> GetTeamHoursTrend(
         [FromQuery] DateTime startDate,
@@ -63,11 +65,11 @@ public class AnalyticsController : ControllerBase
         return Ok(ApiResponseDto<TeamHoursTrendDto>.SuccessResponse(result));
     }
 
-    /// <summary>
-    /// Gets individual performance metrics for each team member
-    /// </summary>
-    /// <param name="startDate">Optional start date (default: 30 days ago)</param>
-    /// <param name="endDate">Optional end date (default: today)</param>
+ 
+    // API ENDPOINT: GET /api/analytics/team-member-performance
+    // CALLED FROM FRONTEND: getTeamMemberPerformance() function
+    // PURPOSE: Gets individual performance metrics for each team member.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("team-member-performance")]
     public async Task<ActionResult<ApiResponseDto<TeamMemberPerformanceDto>>> GetTeamMemberPerformance(
         [FromQuery] DateTime? startDate,
@@ -78,11 +80,11 @@ public class AnalyticsController : ControllerBase
         return Ok(ApiResponseDto<TeamMemberPerformanceDto>.SuccessResponse(result));
     }
 
-    /// <summary>
-    /// Gets task completion breakdown by status for doughnut chart
-    /// </summary>
-    /// <param name="startDate">Optional start date (default: 30 days ago)</param>
-    /// <param name="endDate">Optional end date (default: today)</param>
+   
+    // API ENDPOINT: GET /api/analytics/task-completion-breakdown
+    // CALLED FROM FRONTEND: getTaskCompletionBreakdown() function
+    // PURPOSE: Gets task completion breakdown by status for doughnut chart.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("task-completion-breakdown")]
     public async Task<ActionResult<ApiResponseDto<TaskCompletionBreakdownDto>>> GetTaskCompletionBreakdown(
         [FromQuery] DateTime? startDate,
@@ -95,12 +97,11 @@ public class AnalyticsController : ControllerBase
 
     // ==================== ORGANIZATION ANALYTICS ENDPOINTS ====================
 
-    /// <summary>
-    /// Gets organization-wide analytics summary (Admin only)
-    /// </summary>
-    /// <param name="startDate">Optional start date for analytics</param>
-    /// <param name="endDate">Optional end date for analytics</param>
-    /// <param name="period">Optional period in days (7, 14, 30, 90) - overrides startDate if provided</param>
+   
+    // API ENDPOINT: GET /api/analytics/organization-summary
+    // CALLED FROM FRONTEND: getOrganizationSummary() function
+    // PURPOSE: Gets organization-wide analytics summary (Admin only).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "AdminOnly")]
     [HttpGet("organization-summary")]
     public async Task<ActionResult<ApiResponseDto<OrganizationAnalyticsResponse>>> GetOrganizationSummary(
@@ -121,12 +122,11 @@ public class AnalyticsController : ControllerBase
             "Organization analytics retrieved successfully"));
     }
 
-    /// <summary>
-    /// Gets detailed analytics for a specific department (Admin or Manager)
-    /// </summary>
-    /// <param name="departmentName">Name of the department</param>
-    /// <param name="startDate">Optional start date</param>
-    /// <param name="endDate">Optional end date</param>
+    
+    // API ENDPOINT: GET /api/analytics/department/{departmentName}
+    // CALLED FROM FRONTEND: getDepartmentAnalytics() function
+    // PURPOSE: Gets detailed analytics for a specific department (Admin or Manager).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("department/{departmentName}")]
     public async Task<ActionResult<ApiResponseDto<DepartmentAnalyticsDto>>> GetDepartmentAnalytics(
         string departmentName,
@@ -143,10 +143,11 @@ public class AnalyticsController : ControllerBase
         return Ok(ApiResponseDto<DepartmentAnalyticsDto>.SuccessResponse(result));
     }
 
-    /// <summary>
-    /// Gets daily hours trend data for organization chart (Admin only)
-    /// </summary>
-    /// <param name="days">Number of days to include (7, 14, 30, 90) - default: 7</param>
+    
+    // API ENDPOINT: GET /api/analytics/hours-trend
+    // CALLED FROM FRONTEND: getHoursTrend() function
+    // PURPOSE: Gets daily hours trend data for organization chart (Admin only).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [Authorize(Policy = "AdminOnly")]
     [HttpGet("hours-trend")]
     public async Task<ActionResult<ApiResponseDto<List<DailyHoursDto>>>> GetHoursTrend(

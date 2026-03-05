@@ -1,6 +1,6 @@
 using TimeTrack.API.DTOs.Analytics;
 
-namespace TimeTrack.API.Service;
+namespace TimeTrack.API.Service.ServiceInterface;
 
 public interface IAnalyticsService
 {

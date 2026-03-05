@@ -3,6 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace TimeTrack.API.DTOs.Break;
 
+// DTO: CreateBreakDto
+// PURPOSE: Transfers create break data from frontend to backend.
 public class CreateBreakDto
 {
     [Required]

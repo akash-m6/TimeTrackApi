@@ -5,12 +5,16 @@ using TimeTrack.API.Repository.IRepository;
 
 namespace TimeTrack.API.Repository;
 
+// REPOSITORY: TaskTimeRepository
+// PURPOSE: Handles database operations for TaskTime entities.
 public class TaskTimeRepository : GenericRepository<TaskTime>, ITaskTimeRepository
 {
     public TaskTimeRepository(TimeTrackDbContext context) : base(context)
     {
     }
 
+    // METHOD: GetTaskTimesByTaskIdAsync
+    // PURPOSE: Retrieves all time logs for a specific task.
     public async Task<IEnumerable<TaskTime>> GetTaskTimesByTaskIdAsync(Guid taskId)
     {
         return await _dbSet
@@ -21,6 +25,8 @@ public class TaskTimeRepository : GenericRepository<TaskTime>, ITaskTimeReposito
             .ToListAsync();
     }
 
+    // METHOD: GetTaskTimesByUserIdAsync
+    // PURPOSE: Retrieves all time logs for a user in a date range.
     public async Task<IEnumerable<TaskTime>> GetTaskTimesByUserIdAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         return await _dbSet
@@ -30,6 +36,8 @@ public class TaskTimeRepository : GenericRepository<TaskTime>, ITaskTimeReposito
             .ToListAsync();
     }
 
+    // METHOD: GetTotalHoursForTaskAsync
+    // PURPOSE: Returns total hours spent on a specific task.
     public async Task<decimal> GetTotalHoursForTaskAsync(Guid taskId)
     {
         return await _dbSet
@@ -37,6 +45,8 @@ public class TaskTimeRepository : GenericRepository<TaskTime>, ITaskTimeReposito
             .SumAsync(tt => tt.HoursSpent);
     }
 
+    // METHOD: GetTotalHoursForUserAsync
+    // PURPOSE: Returns total hours spent by a user in a date range.
     public async Task<decimal> GetTotalHoursForUserAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         return await _dbSet

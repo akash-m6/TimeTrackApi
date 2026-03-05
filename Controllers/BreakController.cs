@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TimeTrack.API.DTOs.Break;
 using TimeTrack.API.DTOs.Common;
-using TimeTrack.API.Service;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Controllers;
 
+// CONTROLLER: BreakController
+// PURPOSE: Handles all break-related API requests from frontend.
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
@@ -21,6 +23,10 @@ public class BreakController : ControllerBase
         _logger = logger;
     }
 
+    // API ENDPOINT: POST /api/break
+    // CALLED FROM FRONTEND: startBreak() function
+    // PURPOSE: Starts a new break for the user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpPost]
     public async Task<ActionResult<ApiResponseDto<BreakResponseDto>>> StartBreak([FromBody] CreateBreakDto dto)
     {
@@ -63,6 +69,10 @@ public class BreakController : ControllerBase
         }
     }
 
+    // API ENDPOINT: PUT /api/break/{breakId}/end
+    // CALLED FROM FRONTEND: endBreak() function
+    // PURPOSE: Ends an active break for the user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpPut("{breakId}/end")]
     public async Task<ActionResult<ApiResponseDto<BreakResponseDto>>> EndBreak(Guid breakId, [FromBody] EndBreakDto dto)
     {
@@ -105,6 +115,10 @@ public class BreakController : ControllerBase
         }
     }
 
+    // API ENDPOINT: GET /api/break/active
+    // CALLED FROM FRONTEND: getActiveBreak() function
+    // PURPOSE: Gets the currently active break for the user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpGet("active")]
     public async Task<ActionResult<ApiResponseDto<BreakResponseDto?>>> GetActiveBreak()
     {
@@ -127,6 +141,10 @@ public class BreakController : ControllerBase
         return Ok(ApiResponseDto<BreakResponseDto?>.SuccessResponse(result));
     }
 
+    // API ENDPOINT: DELETE /api/break/{breakId}
+    // CALLED FROM FRONTEND: deleteBreak() function
+    // PURPOSE: Deletes a break for the user.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpDelete("{breakId}")]
     public async Task<ActionResult<ApiResponseDto<bool>>> DeleteBreak(Guid breakId)
     {

@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TimeTrack.API.Models
 {
+
+// MODEL: TaskEntity
+// PURPOSE: Represents task table structure in the database.
     public class TaskEntity
     {
         [Key]

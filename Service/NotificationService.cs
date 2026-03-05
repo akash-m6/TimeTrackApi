@@ -1,5 +1,6 @@
 using TimeTrack.API.Models;
 using TimeTrack.API.Repository.IRepository;
+using TimeTrack.API.Service.ServiceInterface;
 using TaskAsync = System.Threading.Tasks.Task;
 
 namespace TimeTrack.API.Service;

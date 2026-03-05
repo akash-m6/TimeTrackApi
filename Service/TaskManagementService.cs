@@ -1,9 +1,12 @@
 using TimeTrack.API.DTOs.Task;
 using TimeTrack.API.Models;
 using TimeTrack.API.Repository.IRepository;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Service;
 
+// SERVICE: TaskManagementService
+// PURPOSE: Contains business logic for task management operations.
 public class TaskManagementService : ITaskManagementService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -15,6 +18,8 @@ public class TaskManagementService : ITaskManagementService
         _notificationService = notificationService;
     }
 
+    // METHOD: CreateTaskAsync
+    // PURPOSE: Creates a new task and assigns it to a user.
     public async Task<TaskResponseDto> CreateTaskAsync(Guid creatorId, CreateTaskDto dto)
     {
         var assignedUser = await _unitOfWork.Users.GetByIdAsync(dto.AssignedToUserId);
@@ -57,6 +62,8 @@ public class TaskManagementService : ITaskManagementService
         return await BuildTaskResponseDto(taskEntity);
     }
 
+    // METHOD: UpdateTaskAsync
+    // PURPOSE: Updates an existing task's details and status.
     public async Task<TaskResponseDto> UpdateTaskAsync(Guid taskId, CreateTaskDto dto)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
@@ -129,6 +136,8 @@ public class TaskManagementService : ITaskManagementService
         return await BuildTaskResponseDto(taskEntity);
     }
 
+    // METHOD: DeleteTaskAsync
+    // PURPOSE: Deletes a task if not completed or approved.
     public async Task<bool> DeleteTaskAsync(Guid taskId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
@@ -148,6 +157,8 @@ public class TaskManagementService : ITaskManagementService
         return true;
     }
 
+    // METHOD: GetTaskByIdAsync
+    // PURPOSE: Retrieves a task by its ID.
     public async Task<TaskResponseDto> GetTaskByIdAsync(Guid taskId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
@@ -159,6 +170,8 @@ public class TaskManagementService : ITaskManagementService
         return await BuildTaskResponseDto(taskEntity);
     }
 
+    // METHOD: GetUserTasksAsync
+    // PURPOSE: Retrieves all tasks assigned to a user.
     public async Task<IEnumerable<TaskResponseDto>> GetUserTasksAsync(Guid userId)
     {
         var tasks = await _unitOfWork.Tasks.GetTasksByAssignedUserAsync(userId);
@@ -172,6 +185,8 @@ public class TaskManagementService : ITaskManagementService
         return taskResponses;
     }
 
+    // METHOD: GetCreatedTasksAsync
+    // PURPOSE: Retrieves all tasks created by a user.
     public async Task<IEnumerable<TaskResponseDto>> GetCreatedTasksAsync(Guid creatorId)
     {
         var tasks = await _unitOfWork.Tasks.GetTasksByCreatorAsync(creatorId);
@@ -186,6 +201,8 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: START TASK ====================
+    // METHOD: StartTaskAsync
+    // PURPOSE: Starts a task and updates its status to InProgress.
     public async Task<TaskResponseDto> StartTaskAsync(Guid taskId, Guid userId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
@@ -221,6 +238,8 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: COMPLETE TASK ====================
+    // METHOD: CompleteTaskAsync
+    // PURPOSE: Completes a task and updates its status to Completed.
     public async Task<TaskResponseDto> CompleteTaskAsync(Guid taskId, Guid userId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
@@ -257,6 +276,8 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: APPROVE TASK ====================
+    // METHOD: ApproveTaskAsync
+    // PURPOSE: Approves a completed task and updates its status to Approved.
     public async Task<TaskResponseDto> ApproveTaskAsync(Guid taskId, Guid managerId)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
@@ -294,6 +315,8 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: REJECT TASK ====================
+    // METHOD: RejectTaskAsync
+    // PURPOSE: Rejects a completed task and sends it back to InProgress.
     public async Task<TaskResponseDto> RejectTaskAsync(Guid taskId, Guid managerId, string reason)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(taskId);
@@ -326,6 +349,8 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // ==================== NEW: GET TASKS PENDING APPROVAL ====================
+    // METHOD: GetTasksPendingApprovalAsync
+    // PURPOSE: Retrieves all tasks pending approval for a manager.
     public async Task<IEnumerable<TaskResponseDto>> GetTasksPendingApprovalAsync(Guid managerId)
     {
         var tasks = await _unitOfWork.Tasks.GetTasksByCreatorAsync(managerId);
@@ -340,6 +365,8 @@ public class TaskManagementService : ITaskManagementService
         return taskResponses;
     }
 
+    // METHOD: UpdateTaskStatusAsync
+    // PURPOSE: Updates the status of a task.
     public async Task<bool> UpdateTaskStatusAsync(Guid taskId, string status)
     {
         var validStatuses = new[] { "Pending", "InProgress", "Completed", "Approved" };
@@ -378,6 +405,8 @@ public class TaskManagementService : ITaskManagementService
         return true;
     }
 
+    // METHOD: LogTaskTimeAsync
+    // PURPOSE: Logs time spent on a specific task by a user.
     public async Task<bool> LogTaskTimeAsync(Guid userId, LogTaskTimeDto dto)
     {
         var taskEntity = await _unitOfWork.Tasks.GetByIdAsync(dto.TaskId);
@@ -407,6 +436,8 @@ public class TaskManagementService : ITaskManagementService
         return true;
     }
 
+    // METHOD: GetOverdueTasksAsync
+    // PURPOSE: Retrieves all overdue tasks.
     public async Task<IEnumerable<TaskResponseDto>> GetOverdueTasksAsync()
     {
         var overdueTasks = await _unitOfWork.Tasks.GetOverdueTasksAsync();
@@ -420,6 +451,8 @@ public class TaskManagementService : ITaskManagementService
         return taskResponses;
     }
 
+    // METHOD: BuildTaskResponseDto
+    // PURPOSE: Builds a TaskResponseDto from a TaskEntity.
     private async Task<TaskResponseDto> BuildTaskResponseDto(TaskEntity task)
     {
         var actualHours = await _unitOfWork.TaskTimes.GetTotalHoursForTaskAsync(task.TaskId);
@@ -450,6 +483,8 @@ public class TaskManagementService : ITaskManagementService
     }
 
     // Organization Analytics Methods
+    // METHOD: GetAllTasksWithDetailsAsync
+    // PURPOSE: Retrieves all tasks with details for analytics.
     public async Task<IEnumerable<TaskResponseDto>> GetAllTasksWithDetailsAsync(
         DateTime? startDate, 
         DateTime? endDate, 

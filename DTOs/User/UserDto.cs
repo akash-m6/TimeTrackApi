@@ -2,6 +2,8 @@
 
 namespace TimeTrack.API.DTOs.User;
 
+// DTO: UserDto
+// PURPOSE: Transfers user data between backend and frontend.
 public class UserDto
 {
     [JsonPropertyName("userId")]

@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace TimeTrack.API.DTOs.Break;
 
+// DTO: BreakResponseDto
+// PURPOSE: Transfers break response data between backend and frontend.
 public class BreakResponseDto
 {
     [JsonPropertyName("breakId")]

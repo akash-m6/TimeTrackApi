@@ -1,8 +1,11 @@
 using TimeTrack.API.DTOs.Analytics;
 using TimeTrack.API.Repository.IRepository;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Service;
 
+// SERVICE: AnalyticsService
+// PURPOSE: Provides business logic for analytics and reporting features.
 public class AnalyticsService : IAnalyticsService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -12,9 +15,9 @@ public class AnalyticsService : IAnalyticsService
         _unitOfWork = unitOfWork;
     }
 
-    /// <summary>
-    /// Gets team summary analytics for dashboard cards
-    /// </summary>
+
+    // METHOD: GetTeamSummaryAsync
+    // PURPOSE: Gets team summary analytics for dashboard cards.
     public async Task<TeamSummaryDto> GetTeamSummaryAsync(Guid managerId, DateTime? startDate, DateTime? endDate)
     {
         // Set default date range if not provided (last 30 days)
@@ -61,9 +64,8 @@ public class AnalyticsService : IAnalyticsService
         };
     }
 
-    /// <summary>
-    /// Gets team hours trend data grouped by day or week for line chart
-    /// </summary>
+    // METHOD: GetTeamHoursTrendAsync
+    // PURPOSE: Gets team hours trend data grouped by day or week for line chart.
     public async Task<TeamHoursTrendDto> GetTeamHoursTrendAsync(Guid managerId, DateTime startDate, DateTime endDate, string groupBy)
     {
         // Get manager's team members
@@ -131,9 +133,8 @@ public class AnalyticsService : IAnalyticsService
         };
     }
 
-    /// <summary>
-    /// Gets individual performance metrics for each team member
-    /// </summary>
+    // METHOD: GetTeamMemberPerformanceAsync
+    // PURPOSE: Gets individual performance metrics for each team member.
     public async Task<TeamMemberPerformanceDto> GetTeamMemberPerformanceAsync(Guid managerId, DateTime? startDate, DateTime? endDate)
     {
         // Set default date range
@@ -211,9 +212,9 @@ public class AnalyticsService : IAnalyticsService
         };
     }
 
-    /// <summary>
-    /// Gets task count breakdown by status for doughnut chart
-    /// </summary>
+
+    // METHOD: GetTaskCompletionBreakdownAsync
+    // PURPOSE: Gets task count breakdown by status for doughnut chart.
     public async Task<TaskCompletionBreakdownDto> GetTaskCompletionBreakdownAsync(Guid managerId, DateTime? startDate, DateTime? endDate)
     {
         // Set default date range
@@ -248,18 +249,18 @@ public class AnalyticsService : IAnalyticsService
         };
     }
 
-    /// <summary>
-    /// Helper method to get the start of the week for a given date
-    /// </summary>
+  
+    // METHOD: GetWeekStart
+    // PURPOSE: Helper method to get the start of the week for a given date.
     private DateTime GetWeekStart(DateTime date)
     {
         var diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
         return date.AddDays(-1 * diff).Date;
     }
 
-    /// <summary>
-    /// Gets organization-wide analytics summary for admin dashboard
-    /// </summary>
+ 
+    // METHOD: GetOrganizationSummaryAsync
+    // PURPOSE: Gets organization-wide analytics summary for admin dashboard.
     public async Task<OrganizationAnalyticsResponse> GetOrganizationSummaryAsync(
         DateTime? startDate, 
         DateTime? endDate, 
@@ -360,9 +361,9 @@ public class AnalyticsService : IAnalyticsService
         };
     }
 
-    /// <summary>
-    /// Gets detailed analytics for a specific department
-    /// </summary>
+
+    // METHOD: GetDepartmentAnalyticsAsync
+    // PURPOSE: Gets detailed analytics for a specific department.
     public async Task<DepartmentAnalyticsDto> GetDepartmentAnalyticsAsync(
         string departmentName, 
         DateTime? startDate, 
@@ -413,9 +414,8 @@ public class AnalyticsService : IAnalyticsService
         };
     }
 
-    /// <summary>
-    /// Gets daily hours trend data for the chart
-    /// </summary>
+    // METHOD: GetHoursTrendAsync
+    // PURPOSE: Gets daily hours trend data for the chart.
     public async Task<List<DailyHoursDto>> GetHoursTrendAsync(int days)
     {
         var endDate = DateTime.UtcNow.Date;
@@ -446,9 +446,8 @@ public class AnalyticsService : IAnalyticsService
         return trendData;
     }
 
-    /// <summary>
-    /// Helper method to get count of currently active employees
-    /// </summary>
+    // METHOD: GetActiveEmployeesCountAsync
+    // PURPOSE: Helper method to get count of currently active employees.
     private async Task<int> GetActiveEmployeesCountAsync()
     {
         // Get users who have logged time today

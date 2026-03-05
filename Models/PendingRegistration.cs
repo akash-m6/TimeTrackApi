@@ -5,6 +5,9 @@ using TimeTrack.API.Models;
 namespace TimeTrack.API.Models;
 
 [Table("PendingRegistrations")]
+
+// MODEL: PendingRegistration
+// PURPOSE: Represents pending registration table structure in the database.
 public class PendingRegistration
 {
     [Key]

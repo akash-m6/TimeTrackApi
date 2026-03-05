@@ -3,10 +3,12 @@ using TimeTrack.API.DTOs.Auth;
 using TimeTrack.API.DTOs.Common;
 using TimeTrack.API.DTOs.Registration;
 using TimeTrack.API.Models.Enums;
-using TimeTrack.API.Service;
+using TimeTrack.API.Service.ServiceInterface;
 
 namespace TimeTrack.API.Controllers;
 
+// CONTROLLER: AuthController
+// PURPOSE: Handles authentication and registration-related API requests from frontend.
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
@@ -21,9 +23,11 @@ public class AuthController : ControllerBase
     }
 
 
-    /// <summary>
-    /// User login endpoint
-    /// </summary>
+
+    // API ENDPOINT: POST /api/auth/login
+    // CALLED FROM FRONTEND: login() function
+    // PURPOSE: Authenticates user and returns login response.
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpPost("login")]
     public async Task<ActionResult<ApiResponseDto<LoginResponseDto>>> Login([FromBody] LoginRequestDto request)
     {
@@ -31,9 +35,11 @@ public class AuthController : ControllerBase
         return Ok(ApiResponseDto<LoginResponseDto>.SuccessResponse(result, "Login successful"));
     }
 
-    /// <summary>
-    /// User registration endpoint - Employee/Manager requires admin approval
-    /// </summary>
+
+    // API ENDPOINT: POST /api/auth/register
+    // CALLED FROM FRONTEND: register() function
+    // PURPOSE: Submits a registration request for Employee/Manager (requires admin approval).
+    // FLOW: Controller → Service → Repository → Database → Response to Frontend
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
@@ -62,10 +68,11 @@ public class AuthController : ControllerBase
         return BadRequest(ApiResponseDto<string>.ErrorResponse(
             "Admin accounts cannot be created through self-registration."));
     }
-    //summaryy
-    /// <summary>
-    /// Get available departments for registration dropdown
-    /// </summary>
+
+    // API ENDPOINT: GET /api/auth/departments
+    // CALLED FROM FRONTEND: getDepartments() function
+    // PURPOSE: Retrieves available departments for registration dropdown.
+    // FLOW: Controller → Service → Response to Frontend
     [HttpGet("departments")]
     public ActionResult<ApiResponseDto<IEnumerable<string>>> GetDepartments()
     {
@@ -74,9 +81,11 @@ public class AuthController : ControllerBase
             "Available departments retrieved"));
     }
 
-    /// <summary>
-    /// Get available roles for registration dropdown
-    /// </summary>
+
+    // API ENDPOINT: GET /api/auth/roles
+    // CALLED FROM FRONTEND: getRoles() function
+    // PURPOSE: Retrieves available roles for registration dropdown.
+    // FLOW: Controller → Service → Response to Frontend
     [HttpGet("roles")]
     public ActionResult<ApiResponseDto<IEnumerable<string>>> GetRoles()
     {

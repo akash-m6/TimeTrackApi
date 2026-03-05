@@ -5,12 +5,16 @@ using TimeTrack.API.Repository.IRepository;
 
 namespace TimeTrack.API.Repository;
 
+// REPOSITORY: TimeLogRepository
+// PURPOSE: Handles database operations for TimeLog entities.
 public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
 {
     public TimeLogRepository(TimeTrackDbContext context) : base(context)
     {
     }
 
+    // METHOD: GetLogsByUserIdAsync
+    // PURPOSE: Retrieves all time logs for a specific user.
     public async Task<IEnumerable<TimeLog>> GetLogsByUserIdAsync(Guid userId)
     {
         return await _dbSet
@@ -20,6 +24,8 @@ public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
             .ToListAsync();
     }
 
+    // METHOD: GetLogsByDateRangeAsync
+    // PURPOSE: Retrieves time logs for a user in a date range.
     public async Task<IEnumerable<TimeLog>> GetLogsByDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         return await _dbSet
@@ -29,6 +35,8 @@ public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
             .ToListAsync();
     }
 
+    // METHOD: GetLogsByDepartmentAsync
+    // PURPOSE: Retrieves time logs for a department in a date range.
     public async Task<IEnumerable<TimeLog>> GetLogsByDepartmentAsync(string department, DateTime startDate, DateTime endDate)
     {
         return await _dbSet
@@ -38,6 +46,8 @@ public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
             .ToListAsync();
     }
 
+    // METHOD: GetTotalHoursByUserAsync
+    // PURPOSE: Returns total hours logged by a user in a date range.
     public async Task<decimal> GetTotalHoursByUserAsync(Guid userId, DateTime startDate, DateTime endDate)
     {
         return await _dbSet
@@ -45,6 +55,8 @@ public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
             .SumAsync(t => t.TotalHours);
     }
 
+    // METHOD: GetPendingApprovalLogsAsync
+    // PURPOSE: Retrieves time logs pending approval for a manager's department.
     public async Task<IEnumerable<TimeLog>> GetPendingApprovalLogsAsync(Guid managerId)
     {
         var managerDepartment = await _context.Users
@@ -59,11 +71,15 @@ public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
             .ToListAsync();
     }
 
+    // METHOD: GetLogByUserAndDateAsync
+    // PURPOSE: Retrieves a time log for a user by date.
     public async Task<TimeLog?> GetLogByUserAndDateAsync(Guid userId, DateTime date)
     {
         return await _dbSet.FirstOrDefaultAsync(t => t.UserId == userId && t.Date.Date == date.Date);
     }
 
+    // METHOD: GetTotalHoursByUsersForDateAsync
+    // PURPOSE: Returns total hours logged by a list of users for a specific date.
     public async Task<decimal> GetTotalHoursByUsersForDateAsync(IEnumerable<Guid> userIds, DateTime date)
     {
         if (userIds == null || !userIds.Any()) return 0m;
@@ -73,6 +89,8 @@ public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
     }
 
     // Organization Analytics Methods
+    // METHOD: GetAllTimeLogsWithDetailsAsync
+    // PURPOSE: Retrieves all time logs with details for analytics.
     public async Task<IEnumerable<TimeLog>> GetAllTimeLogsWithDetailsAsync(
         DateTime? startDate, 
         DateTime? endDate, 
@@ -100,6 +118,8 @@ public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
             .ToListAsync();
     }
 
+    // METHOD: GetTotalHoursForOrganizationAsync
+    // PURPOSE: Returns total hours logged for the organization in a date range.
     public async Task<decimal> GetTotalHoursForOrganizationAsync(DateTime startDate, DateTime endDate)
     {
         var total = await _dbSet
@@ -109,6 +129,8 @@ public class TimeLogRepository : GenericRepository<TimeLog>, ITimeLogRepository
         return total ?? 0m;
     }
 
+    // METHOD: GetDailyHoursAggregateAsync
+    // PURPOSE: Returns daily hours aggregate for the organization in a date range.
     public async Task<Dictionary<DateTime, decimal>> GetDailyHoursAggregateAsync(DateTime startDate, DateTime endDate)
     {
         var result = await _dbSet
